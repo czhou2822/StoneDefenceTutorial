@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "UI_TutorialSlot.generated.h"
 
+class UMediaSource;
+
 /**
  * 
  */
@@ -14,4 +16,7 @@ class SIMPLETUTORIAL_API UUI_TutorialSlot : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	UMediaSource* MediaSource;
 };
