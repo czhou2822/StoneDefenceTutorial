@@ -34,7 +34,7 @@ public:
 	int32 ID;  
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Attribute")
-	int32 Lv;
+	float Lv;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Attribute")
 	float MaxHealth;

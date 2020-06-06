@@ -234,7 +234,7 @@ void ARuleOfTheBullet::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 						{
 							UGameplayStatics::ApplyDamage(
 								OtherCharacter, 
-								100.f,
+								100.f, 
 								InstigatorCharacter->GetController(), 
 								InstigatorCharacter, 
 								UDamageType::StaticClass());

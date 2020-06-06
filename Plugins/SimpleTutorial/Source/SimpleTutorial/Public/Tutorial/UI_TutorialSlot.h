@@ -6,7 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "UI_TutorialSlot.generated.h"
 
-class UMediaSource;
+
+class UButton;
 
 /**
  * 
@@ -15,8 +16,24 @@ UCLASS()
 class SIMPLETUTORIAL_API UUI_TutorialSlot : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* PlayButton;
+
+protected:
+	virtual void NativeConstruct() override;
+
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	UMediaSource* MediaSource;
+	UUI_TutorialSlot(const FObjectInitializer& ObjectInitializer);
+
+
+	UPROPERTY()
+	int32 Index;
+
+	bool IsIndexValid();
+
+	UFUNCTION()
+	void SlotPlay();
+
 };

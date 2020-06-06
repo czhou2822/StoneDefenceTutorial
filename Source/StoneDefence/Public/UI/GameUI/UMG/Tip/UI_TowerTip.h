@@ -18,6 +18,9 @@ class STONEDEFENCE_API UUI_TowerTip : public UUI_RuleOfTheWidget
 	GENERATED_BODY()
 
 	UPROPERTY(meta = (BindWidget))
+	UTextBlock* LVBlock;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CharacterNameBlock;
 
 	UPROPERTY(meta = (BindWidget))

@@ -9,15 +9,12 @@ FGameInstanceData::FGameInstanceData()
 
 void FGameInstanceData::Init()
 {
-	NumberOfMonster = 0;
 	GameDifficulty = 0;
 	bAllMainTowerDie = false;
-	GameOver = false;
+	bGameOver = false;
 	bCurrentLevelMissionSuccess = false;
-	SpawnMonsterStage = 0;
 	CurrentLevel = INDEX_NONE;
 	TimeInterval = 0.5f;
-	CurrentStagesAreMonsters = 0;
 	GameCount = 6000;
 	MaxGameCount = 0;
 	GoldGrowthTime = 1.f;
@@ -26,26 +23,93 @@ void FGameInstanceData::Init()
 	KillMonsterBossNumber = 0; 
 	TowersDeathNumber = 0;
 	MainTowersDeathNumber = 0;
+	CurrentSpawnMonsterTime = 0.f;
+	MaxMonster = 100;
+	MaxStagesAreMonsters = 4;
+}
+
+int32 FGameInstanceData::GetSurplusMonsters()
+{
+	int32 InSurplus = 0;
+	for (auto &Tmp:PerNumberOfMonsters)
+	{
+		InSurplus += Tmp;
+	}
+	return InSurplus;
 }
 
 float FGameInstanceData::GetPerOfRemMonsters()
 {
-	int32 MaxMonsterNumber = GetMaxMonstersNumber();
-	if (MaxMonsterNumber)
+	if (MaxMonster)
 	{
-		return (float)NumberOfMonster / (float)MaxMonsterNumber;
+		return GetSurplusMonsters() / (float)MaxMonster;
 	}
 	return 0.f;
 }
 
-int32 FGameInstanceData::GetMaxMonstersNumber()
+void FGameInstanceData::StageDecision()
 {
-	int32 MaxMonsterNumber = 0;
-	for (auto& Tmp : PerNumberOfMonsters)
+	int32 CurrentStagesAreMonsters = PerNumberOfMonsters.Num() - 1;
+	if (PerNumberOfMonsters.Num())
 	{
-		MaxMonsterNumber += Tmp;
+		if (PerNumberOfMonsters[CurrentStagesAreMonsters] > 0)
+		{
+			PerNumberOfMonsters[CurrentStagesAreMonsters]--;
+		}
+		else
+		{
+			PerNumberOfMonsters.RemoveAt(CurrentStagesAreMonsters);
+		}
 	}
-	return MaxMonsterNumber;
+	else
+	{
+		bCurrentLevelMissionSuccess = true;
+	}
+}
+
+
+
+void FGameInstanceData::AssignedMonsterAmount()
+{
+	int32 CurrentMonsterNumber = MaxMonster;
+
+	int32 CurrentStagesNumber = MaxStagesAreMonsters;
+
+	int32 CurrentAssignedNum = 0;
+
+	if (CurrentMonsterNumber > 1)
+	{
+		for (int32 i = 0; i < MaxStagesAreMonsters; i++)  //each wave
+		{
+			float StagesNumber = (float)CurrentMonsterNumber / (float)CurrentStagesNumber;
+
+			CurrentStagesNumber--;
+			if (CurrentStagesNumber > 0)
+			{
+				CurrentAssignedNum = FMath::RandRange(StagesNumber / 2, StagesNumber);
+			}
+			else
+			{
+				CurrentAssignedNum = StagesNumber;
+			}
+
+			PerNumberOfMonsters.Add(CurrentAssignedNum);
+
+			CurrentMonsterNumber -= CurrentAssignedNum;
+		}
+	}
+
+	else
+	{
+		PerNumberOfMonsters.Add(CurrentAssignedNum);
+	}
+
+
+}
+
+void FGameInstanceData::ResetSpawnMonsterTime()
+{
+	CurrentSpawnMonsterTime = 0.0f;
 }
 
 //bool FGameInstanceData::IsValid()

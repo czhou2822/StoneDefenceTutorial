@@ -6,9 +6,14 @@
 #include "Data/CharacterData.h"
 #include "Engine/World.h"
 #include "Data/Save/GameSaveData.h"
+#include "Character/CharacterCore/Towers.h"
+#include "Character/CharacterCore/Monsters.h"
+#include "Items/SpawnPoint.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
+#include "EngineUtils.h"
+#include "StoneDefence/StoneDefenceUtils.h"
 
 FCharacterData CharacterDataNULL;
 FBuildingTower BuildingTowerNULL;
@@ -30,9 +35,13 @@ ATowerDefenceGameState::ATowerDefenceGameState()
 	}
 }
 
+
+
 void ATowerDefenceGameState::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetGameData().AssignedMonsterAmount();
 
 	//if (1)
 	//{
@@ -45,7 +54,34 @@ void ATowerDefenceGameState::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	GetGameData().GameCount -= DeltaSeconds;
+
+	if (GetGameData().GameCount <= 0.f)
+	{
+		GetGameData().bGameOver = true;
+	}
+	else
+	{
+		GetGameData().GameCount -= DeltaSeconds;
+	}
+
+	int32 TowersNum = 0;
+
+	TArray<ARuleOfTheCharacter*> InTowers;
+	StoneDefenceUtils::GetAllActor<ATowers>(GetWorld(), InTowers);
+
+	for (ARuleOfTheCharacter* Tower : InTowers) 
+	{
+		if (Tower->IsActive())
+		{
+			TowersNum++;
+		}
+	}
+	if (TowersNum == 0)
+	{
+		GetGameData().bGameOver = true;
+	}
+
+	SpawnMonsterRule(DeltaSeconds);
 
 }
 
@@ -60,6 +96,146 @@ UGameSaveSlotList* ATowerDefenceGameState::GetGameSaveSlotList()
 		}
 	}
 	return SlotList;
+}
+
+
+
+int32 GetMonsterLevel(UWorld* InWorld)
+{
+	struct FDifficultyDetermination
+	{
+		FDifficultyDetermination()
+			:Level(0.f)
+			, Combination(0.f)
+			, Attack(0.f)
+			, Defense(0.f)
+			, Variance(0.f)
+		{
+
+		}
+		float Level;
+		float Combination;
+		float Attack;
+		float Defense;
+		float Variance;
+
+	};
+
+
+	auto GetDifficultyDetermination = [](TArray<ARuleOfTheCharacter*> &RuleOfTheCharacter) -> FDifficultyDetermination
+	{
+		int32 Index = 0;
+
+		FDifficultyDetermination DifficultyDetermination;
+
+		for (ARuleOfTheCharacter* Tmp : RuleOfTheCharacter)
+		{
+			if (Tmp->IsActive())
+			{
+				DifficultyDetermination.Level += (float)Tmp->GetCharacterData().Lv;
+				DifficultyDetermination.Attack += Tmp->GetCharacterData().PhysicalAttack;
+				DifficultyDetermination.Defense += Tmp->GetCharacterData().Armor;
+				Index++;
+			}
+		}
+
+		DifficultyDetermination.Level /= Index;
+		DifficultyDetermination.Attack /= Index;
+		DifficultyDetermination.Defense /= Index;
+
+		for (ARuleOfTheCharacter* Tmp : RuleOfTheCharacter)
+		{
+			if (Tmp->IsActive())
+			{
+				float InValue = (float)Tmp->GetCharacterData().Lv - DifficultyDetermination.Level;
+				DifficultyDetermination.Variance += InValue * InValue;
+			}
+		}
+
+		DifficultyDetermination.Variance /= Index;
+
+		return DifficultyDetermination;
+	};
+
+
+	TArray<ARuleOfTheCharacter*> Towers;
+	TArray<ARuleOfTheCharacter*> Monsters;
+	StoneDefenceUtils::GetAllActor<AMonsters>(InWorld, Monsters);
+	StoneDefenceUtils::GetAllActor<ATowers>(InWorld, Towers);
+
+	FDifficultyDetermination TowerDD = GetDifficultyDetermination(Towers);
+	FDifficultyDetermination MonsterDD = GetDifficultyDetermination(Monsters);
+
+	int32 ReturnLevel = TowerDD.Level;
+
+	if (TowerDD.Attack > MonsterDD.Attack)
+	{
+		ReturnLevel++;
+	}
+	if (TowerDD.Defense > MonsterDD.Defense)
+	{
+		ReturnLevel++;
+	}
+
+	ReturnLevel += FMath::Abs(2 - FMath::Sqrt(TowerDD.Variance));
+
+
+
+	return ReturnLevel;
+
+
+}
+
+
+
+void ATowerDefenceGameState::SpawnMonsterRule(float DeltaSeconds)
+{
+
+
+
+
+
+	if (!GetGameData().bCurrentLevelMissionSuccess)
+	{
+		if (!GetGameData().bGameOver)
+		{
+			if (GetGameData().PerNumberOfMonsters.Num())
+			{
+				GetGameData().CurrentSpawnMonsterTime += DeltaSeconds;
+				if (GetGameData().IsAllowSpawnMonster())
+				{
+					GetGameData().ResetSpawnMonsterTime();
+
+					int32 MonsterLevel = GetMonsterLevel(GetWorld());
+					if (ARuleOfTheCharacter* MyMonster = SpawnMonster(0, MonsterLevel, FVector::ZeroVector, FRotator::ZeroRotator))
+					{
+						TArray<ASpawnPoint*> MonsterSpawnPoints;
+
+						for (ASpawnPoint* TargetPoint : StoneDefenceUtils::GetAllActor<ASpawnPoint>(GetWorld()))
+						{
+							if (MyMonster->IsTeam() == TargetPoint->bTeam)
+							{
+								MonsterSpawnPoints.Add(TargetPoint);
+								break;
+							}
+						}
+						ASpawnPoint* TargetPoint = MonsterSpawnPoints[FMath::RandRange(0, MonsterSpawnPoints.Num() - 1)];
+						MyMonster->SetActorLocation(TargetPoint->GetActorLocation());
+						MyMonster->SetActorRotation(TargetPoint->GetActorRotation());
+
+						GetGameData().StageDecision();
+					}
+
+
+
+				}
+			}
+		}
+	}
+	else
+	{
+
+	}
 }
 
 UGameSaveData* ATowerDefenceGameState::GetSaveData()
@@ -78,6 +254,7 @@ ARuleOfTheCharacter* ATowerDefenceGameState::SpawnCharacter(
 	const FVector& Location,
 	const FRotator& Rotator)
 {
+	ARuleOfTheCharacter* InCharacter = nullptr;
 	if (InCharacterData)
 	{
 		TArray<FCharacterData*> Data;
@@ -104,14 +281,15 @@ ARuleOfTheCharacter* ATowerDefenceGameState::SpawnCharacter(
 				{
 					NewCharacterData->UpdateHealth();
 					AddCharacterData(RuleOfTheCharacter->GUID, *NewCharacterData);
+
+					InCharacter = RuleOfTheCharacter;
 				}
 			}
 		}
 
 	}
 
-
-	return nullptr;
+	return InCharacter;
 }
 
 const FCharacterData &ATowerDefenceGameState::AddCharacterData(const FGuid& ID, const FCharacterData& Data)

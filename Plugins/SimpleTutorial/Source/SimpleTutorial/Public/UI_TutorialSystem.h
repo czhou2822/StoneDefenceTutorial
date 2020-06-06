@@ -10,6 +10,7 @@
  * 
  */
 
+
 class UCheckBox;
 class UButton;
 class USlider;
@@ -17,24 +18,21 @@ class UImage;
 class UTextBlock;
 class UMediaPlayer;
 class UUI_TutorialSlot;
+class UScrollBox;
 
 UCLASS()
 class SIMPLETUTORIAL_API UUI_TutorialSystem : public UUserWidget
 {
 	GENERATED_BODY()
 
-
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* MainBoard;
-
+	UScrollBox* ScrollMediaList;
+	
 	UPROPERTY(meta = (BindWidget))
 	UButton* ReplayButton;
 
 	UPROPERTY(meta = (BindWidget))
 	UCheckBox* SuspendButton;
-
-	UPROPERTY(meta = (BindWidget))
-	UButton* CloseButton;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* PauseButton;
@@ -64,7 +62,7 @@ private:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION()
-	void InitMedia(bool IsPlayMovie);
+	void InitMedia();
 
 	UFUNCTION()
 	void ActivationMovie();
@@ -76,7 +74,7 @@ private:
 	void Replay();
 
 	UFUNCTION()
-	void Close();
+	bool SystemPlay(int32 InIndex);
 
 	UFUNCTION()
 	void Pause();

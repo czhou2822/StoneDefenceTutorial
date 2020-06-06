@@ -52,6 +52,7 @@ private:
 
 	TArray<FCharacterData*> CacheMonsterData;
 	
+
 protected:
 
 	virtual void BeginPlay() override;
@@ -69,6 +70,10 @@ protected:
 	UGameSaveData* GetSaveData();
 
 	UGameSaveSlotList* GetGameSaveSlotList();
+
+	void SpawnMonsterRule(float DeltaSeconds);
+
+
 
 public:
 
@@ -111,5 +116,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = SaveData)
 	bool ReadGameData(int32 SaveNumber);
+
 
 };

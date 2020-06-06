@@ -15,5 +15,6 @@ void UUI_TowerTip::InitTip(const FCharacterData& InData)
 	CharacterArmorBlock->SetText(FText::AsNumber(InData.Armor));
 	CharacterAttackSpeedBlock->SetText(FText::AsNumber(InData.AttackSpeed));
 	IntroductionBox->SetText(InData.Introduction);
+	LVBlock->SetText(FText::AsNumber(InData.Lv));
 
 }

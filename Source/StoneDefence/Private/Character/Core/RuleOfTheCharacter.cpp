@@ -118,7 +118,6 @@ void ARuleOfTheCharacter::UpdateUI()
 		{
 			HealthUI->SetTitle(GetCharacterData().Name.ToString());
 			HealthUI->SetHealth(GetHealth() / GetMaxHealth());
-
 		}
 	}
 

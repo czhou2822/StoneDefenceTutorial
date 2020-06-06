@@ -18,8 +18,17 @@ struct FGameInstanceData
 
 	//bool IsValid();
 
+
 	UPROPERTY(SaveGame)
-	int32 NumberOfMonster;
+	int32 MaxMonster;
+
+	//how many waves in total
+	UPROPERTY(SaveGame)
+	int32 MaxStagesAreMonsters;
+
+	//enemy counts in each wave, changes in runtime
+	UPROPERTY(SaveGame)
+	TArray<int32> PerNumberOfMonsters;
 
 	UPROPERTY(SaveGame)
 	int32 GameDifficulty;
@@ -28,13 +37,12 @@ struct FGameInstanceData
 	uint8 bAllMainTowerDie : 1;
 
 	UPROPERTY(Transient)
-	uint8 GameOver : 1;
+	uint8 bGameOver : 1;
 
 	UPROPERTY(Transient)
 	uint8 bCurrentLevelMissionSuccess : 1;
 
-	UPROPERTY(SaveGame)
-	int32 SpawnMonsterStage;
+
 
 	UPROPERTY(SaveGame)
 	int32 CurrentLevel;
@@ -43,10 +51,8 @@ struct FGameInstanceData
 	float TimeInterval;
 
 	UPROPERTY(SaveGame)
-	int32 CurrentStagesAreMonsters;
+	float CurrentSpawnMonsterTime;
 
-	UPROPERTY(SaveGame)
-	TArray<int32> PerNumberOfMonsters;
 
 	UPROPERTY(SaveGame)
 	float GameCount;
@@ -72,8 +78,15 @@ struct FGameInstanceData
 	UPROPERTY(SaveGame)
 	int32 MainTowersDeathNumber;
 
+	int32 GetSurplusMonsters();
+
 	float GetPerOfRemMonsters();
 
-	int32 GetMaxMonstersNumber();
+	void StageDecision();
 
+	void AssignedMonsterAmount();
+
+	FORCEINLINE bool IsAllowSpawnMonster() { return CurrentSpawnMonsterTime >= TimeInterval; }
+
+	void ResetSpawnMonsterTime();
 };

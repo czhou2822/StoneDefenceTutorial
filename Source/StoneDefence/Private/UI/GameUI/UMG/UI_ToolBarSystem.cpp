@@ -32,7 +32,7 @@ void UUI_ToolBarSystem::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	GameLevelSurplusQuantity->SetText(FText(
 		FText::FromString(FString::Printf(TEXT("%2d/%2d"),
 			GetGameState()->GetGameData().PerNumberOfMonsters.Num(),
-			GetGameState()->GetGameData().CurrentStagesAreMonsters))
+			GetGameState()->GetGameData().MaxStagesAreMonsters - GetGameState()->GetGameData().PerNumberOfMonsters.Num()))
 	));
 }
 
