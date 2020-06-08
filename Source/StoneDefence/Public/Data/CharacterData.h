@@ -84,7 +84,7 @@ public:
 	float AddArmor;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Profit")
-	float AddPEmpiricalValue;
+	float AddEmpiricalValue;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Profit")
 	float AddAttackSpeed;
@@ -128,5 +128,8 @@ public:
 	bool IsValid() const;
 
 	void UpdateHealth();
+
+	bool UpdateLevel(float InExp);
+
 
 };

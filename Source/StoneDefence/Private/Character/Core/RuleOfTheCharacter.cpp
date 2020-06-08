@@ -61,6 +61,19 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
+	auto DrawGameText = [&](ARuleOfTheCharacter *InOwner, const TCHAR *InText, float InDamageValue, FLinearColor InColor)
+	{
+		//draw damage
+		if (DrawTextClass)
+		{
+			if (ADrawText* MyValueText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, GetActorLocation(), FRotator::ZeroRotator))
+			{
+				FString DamageText = FString::Printf(InText, InDamageValue);
+				MyValueText->SetTextBlock(DamageText, InColor, InDamageValue / InOwner->GetCharacterData().MaxHealth);
+			}
+		}
+	};
+
 	float DamageValue = Expression::GetDamage(Cast<ARuleOfTheCharacter>(DamageCauser), this);
 
 	GetCharacterData().Health -= DamageValue;
@@ -68,17 +81,51 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 	if (!IsActive())
 	{
 		GetCharacterData().Health = 0.0f;
-	}
+		SetLifeSpan(3.0);
 
-	if (DrawTextClass)
-	{
-		if (ADrawText* MyValueText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, GetActorLocation(), FRotator::ZeroRotator))
+
+		Widget->SetVisibility(false);
+		
+
+
+		if (ARuleOfTheCharacter* CauserCharacter = Cast<ARuleOfTheCharacter>(DamageCauser))
 		{
-			FString DamageText = FString::Printf(TEXT("-%0.f"), DamageValue);
-			MyValueText->SetTextBlock(DamageText, FLinearColor::Red, DamageValue / GetCharacterData().MaxHealth);
+			if (CauserCharacter->IsActive())
+			{
+				if (CauserCharacter->GetCharacterData().UpdateLevel(GetCharacterData().AddEmpiricalValue))
+				{
+					//level sfx
+				}
 
+				DrawGameText(CauserCharacter, TEXT("+EP -%0.f"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
+			}
+			TArray<ARuleOfTheCharacter*> EnemyCharacters;
+			StoneDefenceUtils::FindRangeTargetRecently(this, 100.f, EnemyCharacters);
+			for (ARuleOfTheCharacter* InEnemy : EnemyCharacters)
+			{
+				if (InEnemy != CauserCharacter)
+				{
+					if (InEnemy->IsActive())
+					{
+						if (InEnemy->GetCharacterData().UpdateLevel(GetCharacterData().AddEmpiricalValue * 0.3f))
+						{
+							
+						}
+
+						DrawGameText(InEnemy, TEXT("+EP -%0.f"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
+
+					}
+				}
+			}
 		}
+		GetGameState()->RemoveCharacterData(GUID);
+
 	}
+
+	DrawGameText(this, TEXT("-%0.f"), DamageValue, FLinearColor::Red);
+
+
+
 
 	UpdateUI();
 
@@ -122,6 +169,8 @@ void ARuleOfTheCharacter::UpdateUI()
 	}
 
 }
+
+
 
 FCharacterData& ARuleOfTheCharacter::GetCharacterData()
 {

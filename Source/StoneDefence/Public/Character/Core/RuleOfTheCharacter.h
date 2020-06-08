@@ -68,6 +68,7 @@ public:
 
 	void UpdateUI();
 
+
 	virtual FCharacterData& GetCharacterData();
 
 	UFUNCTION(Blueprintable, BlueprintPure, Category = "Towers|Test")

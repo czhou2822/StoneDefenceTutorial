@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EngineUtils.h"
 
 class ARuleOfTheCharacter;
 class IRuleCharacter;
@@ -11,7 +12,10 @@ class UWorld;
 
 namespace StoneDefenceUtils
 {
+	void FindRangeTargetRecently(ARuleOfTheCharacter* InOwner, float Range, TArray<ARuleOfTheCharacter*>& Targets);
+
 	ARuleOfTheCharacter* FindTargetRecently(const TArray<ARuleOfTheCharacter*>& InCharacters, const FVector& Loc);
+
 
 	template<class A, class B>
 	void GetAllActor(UWorld* World, TArray<B*>& Array)
@@ -32,10 +36,7 @@ namespace StoneDefenceUtils
 	{
 		for (TActorIterator<Type>It(World, Type::StaticClass()); It; ++It)
 		{
-			if (Type* A = Cast<Type>(*It))
-			{
-				Array.Add(A);
-			}
+			Array.Add(*It);
 		}
 	}
 
