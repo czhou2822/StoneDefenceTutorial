@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Tutorial/UI_TutorialSlot.h"
 #include "components/Button.h"
 #include "UI_TutorialSystem.h"
 #include "GlobalTutorialProxy.h"
-#include "Tutorial/UI_TutorialSlot.h"
 
 UUI_TutorialSlot::UUI_TutorialSlot(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)

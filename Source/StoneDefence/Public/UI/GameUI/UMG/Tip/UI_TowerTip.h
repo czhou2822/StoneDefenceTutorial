@@ -8,6 +8,7 @@
 
 class UTextBlock;
 class UMultiLineEditableTextBox;
+class UProgressBar;
 struct FCharacterData;
 /**
  * 
@@ -37,6 +38,9 @@ class STONEDEFENCE_API UUI_TowerTip : public UUI_RuleOfTheWidget
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CharacterAttackSpeedBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar* EPBar;
 
 	UPROPERTY(meta = (BindWidget))
 	UMultiLineEditableTextBox* IntroductionBox;

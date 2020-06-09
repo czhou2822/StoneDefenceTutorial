@@ -46,6 +46,9 @@ struct FPlayerData
 	FName PlayerName;
 
 	UPROPERTY(SaveGame)
+	bool bTeam;
+
+	UPROPERTY(SaveGame)
 	FString Account;
 
 	UPROPERTY(SaveGame)
@@ -61,10 +64,18 @@ struct FPlayerData
 	int32 Copper;
 
 	UPROPERTY(SaveGame)
+	float GameGoldTime;
+
+	UPROPERTY(SaveGame)
+	float MaxGameGoldTime;
+
+	UPROPERTY(SaveGame)
 	TArray<int32> SkillIDs;
 
 	UPROPERTY(SaveGame)
 	TArray<FPlayerSkillData> SkillData;
+
+	bool IsAllowIncrease();
 
 };
 

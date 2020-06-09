@@ -2,6 +2,7 @@
 
 #include "UI/GameUI/UMG/Tip/UI_TowerTip.h"
 #include "Components/TextBlock.h"
+#include "components/ProgressBar.h"
 #include "Components/MultiLineEditableTextBox.h"
 #include "Data/CharacterData.h"
 
@@ -16,5 +17,6 @@ void UUI_TowerTip::InitTip(const FCharacterData& InData)
 	CharacterAttackSpeedBlock->SetText(FText::AsNumber(InData.AttackSpeed));
 	IntroductionBox->SetText(InData.Introduction);
 	LVBlock->SetText(FText::AsNumber(InData.Lv));
+	EPBar->SetPercent(InData.GetEPPercent());
 
 }

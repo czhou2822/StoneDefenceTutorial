@@ -12,8 +12,7 @@
 #include "Data/GameData.h"
 #include "TowerDefenceGameState.generated.h"
 
-extern FCharacterData CharacterDataNULL;
-extern FBuildingTower BuildingTowerNULL;
+
 
 
 class AMonsters;
@@ -51,6 +50,10 @@ private:
 	TArray<FCharacterData*> CacheTowerData;
 
 	TArray<FCharacterData*> CacheMonsterData;
+
+	FCharacterData CharacterDataNULL;
+
+	FBuildingTower BuildingTowerNULL;
 	
 
 protected:
@@ -104,6 +107,10 @@ public:
 	FPlayerData& GetPlayerData();
 
 	FGameInstanceData& GetGameData();
+
+
+	FCharacterData& GetCharacterDataNULL();
+	FBuildingTower& GetBuildingTowerNULL();
 
 	UFUNCTION(BlueprintCallable, Category = Spawn)
 	AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);

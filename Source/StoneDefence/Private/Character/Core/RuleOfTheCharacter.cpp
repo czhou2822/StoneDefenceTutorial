@@ -23,6 +23,7 @@
 // Sets default values
 ARuleOfTheCharacter::ARuleOfTheCharacter()
 	:bAttack(false)
+	, DelayDeath(10.f)
 {
 	GUID = FGuid::NewGuid();
 
@@ -80,8 +81,15 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 
 	if (!IsActive())
 	{
+		//get gold
+		if (GetGameState()->GetPlayerData().bTeam == IsTeam())
+		{
+			GetGameState()->GetPlayerData().GameGold += GetCharacterData().Gold;
+		}
+
+
 		GetCharacterData().Health = 0.0f;
-		SetLifeSpan(3.0);
+		SetLifeSpan(DelayDeath);
 
 
 		Widget->SetVisibility(false);
@@ -92,7 +100,7 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 		{
 			if (CauserCharacter->IsActive())
 			{
-				if (CauserCharacter->GetCharacterData().UpdateLevel(GetCharacterData().AddEmpiricalValue))
+				if (CauserCharacter->GetCharacterData().UpdateEP(GetCharacterData().AddEmpiricalValue))
 				{
 					//level sfx
 				}
@@ -107,7 +115,7 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 				{
 					if (InEnemy->IsActive())
 					{
-						if (InEnemy->GetCharacterData().UpdateLevel(GetCharacterData().AddEmpiricalValue * 0.3f))
+						if (InEnemy->GetCharacterData().UpdateEP(GetCharacterData().AddEmpiricalValue * 0.3f))
 						{
 							
 						}
@@ -123,11 +131,6 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 	}
 
 	DrawGameText(this, TEXT("-%0.f"), DamageValue, FLinearColor::Red);
-
-
-
-
-	UpdateUI();
 
 	return DamageValue;
 }
@@ -161,11 +164,15 @@ void ARuleOfTheCharacter::UpdateUI()
 {
 	if (Widget)
 	{
-		if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject()))
+		if (GetCharacterData().IsValid())
 		{
-			HealthUI->SetTitle(GetCharacterData().Name.ToString());
-			HealthUI->SetHealth(GetHealth() / GetMaxHealth());
+			if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject()))
+			{
+				HealthUI->SetTitle(GetCharacterData().Name.ToString());
+				HealthUI->SetHealth(GetHealth() / GetMaxHealth());
+			}
 		}
+
 	}
 
 }
@@ -174,11 +181,16 @@ void ARuleOfTheCharacter::UpdateUI()
 
 FCharacterData& ARuleOfTheCharacter::GetCharacterData()
 {
+#if WITH_EDITOR
 	if (GetGameState())
 	{
 		return GetGameState()->GetCharacterData(GUID);
 	}
-	return CharacterDataNULL;
+	return NULLData;
+
+#else
+	return GetGameState()->GetCharacterData(GUID);
+#endif
 }
 
 UStaticMesh* ARuleOfTheCharacter::GetDollMesh(FTransform& Transform)
@@ -236,6 +248,8 @@ UStaticMesh* ARuleOfTheCharacter::GetDollMesh(FTransform& Transform)
 void ARuleOfTheCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	UpdateUI();
 
 }
 

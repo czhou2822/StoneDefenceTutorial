@@ -15,9 +15,10 @@
 #include "EngineUtils.h"
 #include "StoneDefence/StoneDefenceUtils.h"
 
-FCharacterData CharacterDataNULL;
-FBuildingTower BuildingTowerNULL;
 
+#if PLATFORM_WINDOWS
+#pragma optimize("", off)
+#endif
 
 ATowerDefenceGameState::ATowerDefenceGameState()
 {
@@ -39,7 +40,10 @@ ATowerDefenceGameState::ATowerDefenceGameState()
 
 void ATowerDefenceGameState::BeginPlay()
 {
+
 	Super::BeginPlay();
+
+
 
 	GetGameData().AssignedMonsterAmount();
 
@@ -54,6 +58,12 @@ void ATowerDefenceGameState::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	GetPlayerData().GameGoldTime += DeltaSeconds;
+	if (GetPlayerData().IsAllowIncrease())
+	{
+		GetPlayerData().GameGoldTime = 0.0f;
+		GetPlayerData().GameGold++;
+	}
 
 	if (GetGameData().GameCount <= 0.f)
 	{
@@ -280,6 +290,15 @@ ARuleOfTheCharacter* ATowerDefenceGameState::SpawnCharacter(
 				if (ARuleOfTheCharacter* RuleOfTheCharacter = GetWorld()->SpawnActor<ARuleOfTheCharacter>(NewClass, Location, Rotator))
 				{
 					NewCharacterData->UpdateHealth();
+
+					if (CharacterLevel > 1)
+					{
+						for (int32 i = 0; i < CharacterLevel; i++)
+						{
+							NewCharacterData->UpdateLevel();
+						}
+					}
+
 					AddCharacterData(RuleOfTheCharacter->GUID, *NewCharacterData);
 
 					InCharacter = RuleOfTheCharacter;
@@ -491,6 +510,16 @@ FPlayerData& ATowerDefenceGameState::GetPlayerData()
 FGameInstanceData& ATowerDefenceGameState::GetGameData()
 {
 	return GetSaveData()->GameData;
+}
+
+FCharacterData& ATowerDefenceGameState::GetCharacterDataNULL()
+{
+	return CharacterDataNULL;
+}
+
+FBuildingTower& ATowerDefenceGameState::GetBuildingTowerNULL()
+{
+	return BuildingTowerNULL;
 }
 
 AMonsters* ATowerDefenceGameState::SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator)

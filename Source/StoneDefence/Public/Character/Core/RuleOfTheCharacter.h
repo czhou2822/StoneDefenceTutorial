@@ -14,6 +14,8 @@ UCLASS()
 class STONEDEFENCE_API ARuleOfTheCharacter : public ACharacter, public IRuleCharacter
 {
 	GENERATED_BODY()
+private:
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttribute", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* HomingPoint;
@@ -27,7 +29,16 @@ class STONEDEFENCE_API ARuleOfTheCharacter : public ACharacter, public IRuleChar
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttribute", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* TraceShowCharacterInformation;
 
+
+#if WITH_EDITOR
+	FCharacterData NULLData;
+#endif	
+
+
 public:
+
+	UPROPERTY(EditDefaultsOnly, Category = Death)
+		float DelayDeath;
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<class ADrawText> DrawTextClass;
@@ -84,5 +95,7 @@ public:
 	FORCEINLINE USceneComponent* GetHomingPoint() const { return HomingPoint; }
 
 	FORCEINLINE UArrowComponent* GetFirePoint() const { return OpenFirePoint; }
+
+
 
 };

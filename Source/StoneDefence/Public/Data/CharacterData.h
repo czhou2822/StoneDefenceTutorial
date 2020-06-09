@@ -127,9 +127,13 @@ public:
 
 	bool IsValid() const;
 
+	float GetEPPercent() const;
+
 	void UpdateHealth();
 
-	bool UpdateLevel(float InExp);
+	bool UpdateEP(float InExp);
+
+	void UpdateLevel();
 
 
 };
