@@ -1,16 +1,19 @@
 #include "StoneDefenceUtils.h"
-#include "Data/CharacterData.h"
 #include "Interface/Character/RuleCharacter.h"
-#include "Character/Core/RuleOfTheCharacter.h"
 #include "engine/StaticMesh.h"
-#include "engine/SkeletalMesh.h"
 #include "RawMesh/Public/RawMesh.h"
+#include "SkeletalRenderPublic.h"
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "Rendering/SkeletalMeshLODRenderData.h"
-#include "SkeletalRenderPublic.h"
-#include "components/StaticMeshComponent.h"
 #include "components/SkeletalMeshComponent.h"
-
+#include "Particles/TypeData/ParticleModuleTypeDataMesh.h"
+#include "Particles/ParticleEmitter.h"
+#include "particles/ParticleLODLevel.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "core/gamecore/TowerDefencePlayerState.h"
+#include "Engine/StaticMeshActor.h"
+#include "Character/Core/RuleOfTheCharacter.h"
+#include "engine/World.h"
 
 #if PLATFORM_WINDOWS
 #pragma optimize("", off)
@@ -65,6 +68,69 @@ ARuleOfTheCharacter* StoneDefenceUtils::FindTargetRecently(const TArray<ARuleOfT
 		}
 	}
 	return NULL;
+}
+
+
+AStaticMeshActor* StoneDefenceUtils::SpawnTowersDoll(UWorld* World, int32 ID)
+{
+	AStaticMeshActor* OutActor = NULL;
+
+	if (World)
+	{
+		if (ATowerDefenceGameState *InGameState = World->GetGameState<ATowerDefenceGameState>())
+		{
+			TArray<const FCharacterData*> InData;
+			InGameState->GetTowerDataFormTable(InData);
+
+			for (const auto& Tmp : InData)
+			{
+				if (Tmp->ID == ID)
+				{
+
+					UClass* NewClass = Tmp->CharacterBlueprintKey.LoadSynchronous();
+
+					if ( NewClass)
+					{
+						if (ARuleOfTheCharacter* RuleOfTheCharacter = World->SpawnActor<ARuleOfTheCharacter>(NewClass, FVector::ZeroVector, FRotator::ZeroRotator))
+						{
+							if (AStaticMeshActor* MeshActor = World->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator))
+							{
+								FTransform Transform;
+								if (UStaticMesh* InMesh = RuleOfTheCharacter->GetDollMesh(Transform))
+								{
+									MeshActor->GetStaticMeshComponent()->SetRelativeTransform(Transform);
+									MeshActor->SetMobility(EComponentMobility::Movable);
+									MeshActor->GetStaticMeshComponent()->SetStaticMesh(InMesh);
+									MeshActor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
+									OutActor = MeshActor;
+									RuleOfTheCharacter->Destroy();
+
+								}
+								else
+								{
+									MeshActor->Destroy();
+									RuleOfTheCharacter->Destroy();
+								}
+							}
+							else
+							{
+								RuleOfTheCharacter->Destroy();
+							}
+						}
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
+
+
+	//AStaticMeshActor
+
+
+	return OutActor;
 }
 
 float Expression::GetDamage(IRuleCharacter* Enemy, IRuleCharacter* Owner)
@@ -175,7 +241,31 @@ bool IsValidSkeletalMeshComponent(USkeletalMeshComponent* InComponent)
 	return InComponent && InComponent->MeshObject && InComponent->IsVisible();
 }
 
-UStaticMesh * MeshUtils::SkeletalMeshComponentToStaticMesh(UWorld* World, USkeletalMeshComponent* SkeletalMeshComponent)
+UStaticMesh* MeshUtils::ParticleSystemComponentToStaticMesh(UParticleSystemComponent* NewParticleComponent)
+{
+	UStaticMesh* NewStaticMesh = nullptr;
+	if (NewParticleComponent->Template && NewParticleComponent->Template->Emitters.Num() > 0)
+	{
+		for (const UParticleEmitter* Tmp : NewParticleComponent->Template->Emitters)
+		{
+			if (Tmp->LODLevels[0]->bEnabled)
+			{
+				if (UParticleModuleTypeDataMesh* MyParticleDataMesh = Cast<UParticleModuleTypeDataMesh>(Tmp->LODLevels[0]->TypeDataModule))
+				{
+					if (MyParticleDataMesh->Mesh)
+					{
+						NewStaticMesh = MyParticleDataMesh->Mesh;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return NewStaticMesh;
+}
+
+UStaticMesh * MeshUtils::SkeletalMeshComponentToStaticMesh(USkeletalMeshComponent* SkeletalMeshComponent)
 {
 	UStaticMesh* StaticMesh = nullptr;
 

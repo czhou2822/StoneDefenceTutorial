@@ -2,8 +2,7 @@
 
 
 #include "UI/Core/UI_RuleOfTheWidget.h"
-#include "Core/GameCore/TowerDefencePlayerController.h"
-#include "Core/GameCore/TowerDefenceGameState.h"
+#include "Animation/WidgetAnimation.h"
 
 
 UUI_RuleOfTheWidget::UUI_RuleOfTheWidget(const FObjectInitializer& ObjectInitializer)
@@ -12,11 +11,25 @@ UUI_RuleOfTheWidget::UUI_RuleOfTheWidget(const FObjectInitializer& ObjectInitial
 	GUID = FGuid::NewGuid();
 }
 
+UWidgetAnimation* UUI_RuleOfTheWidget::GetNameWidgetAnimation(const FString& WidgetAnimationName) const
+{
+	return nullptr;
+}
+
 ATowerDefenceGameState* UUI_RuleOfTheWidget::GetGameState()
 {
 	if (GetWorld())
 	{
 		return GetWorld()->GetGameState<ATowerDefenceGameState>();
+	}
+	return nullptr;
+}
+
+ATowerDefencePlayerState* UUI_RuleOfTheWidget::GetPlayerState()
+{
+	if (GetPlayerController())
+	{
+		return GetPlayerController()->GetPlayerState<ATowerDefencePlayerState>();
 	}
 	return nullptr;
 }

@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "core/GameCore/TowerDefencePlayerController.h"
+#include "core/GameCore/TowerDefencePlayerState.h"
+#include "core/GameCore/TowerDefenceGameState.h"
 #include "UI_RuleOfTheWidget.generated.h"
 
 /**
@@ -20,10 +23,14 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI)
 	FGuid GUID;
-	
-	class ATowerDefenceGameState* GetGameState();
 
-	class ATowerDefencePlayerController* GetPlayerController();
+	UWidgetAnimation* GetNameWidgetAnimation(const FString& WidgetAnimationName) const;
+	
+	ATowerDefenceGameState* GetGameState();
+
+	ATowerDefencePlayerState* GetPlayerState();
+
+	ATowerDefencePlayerController* GetPlayerController();
 
 
 

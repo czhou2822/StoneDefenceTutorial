@@ -3,15 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "StoneDefence/StoneDefenceType.h"
-#include "Data/CharacterData.h"
 #include "GameFramework/GameState.h"
-#include "data/Save/GameSaveSlotList.h"
-#include "Data/save/GameSaveData.h"
 #include "Data/CharacterData.h"
+#include "Data/save/GameSaveData.h"
 #include "Data/GameData.h"
+#include "StoneDefence/StoneDefenceType.h"
 #include "TowerDefenceGameState.generated.h"
-
 
 
 
@@ -20,6 +17,7 @@ class ATowers;
 class UDataTable;
 class ARuleOfTheCharacter;
 class UGameSaveData;
+class UGameSaveSlotList;
 
 /**
  * 
@@ -28,8 +26,8 @@ UCLASS()
 class STONEDEFENCE_API ATowerDefenceGameState : public AGameState
 {
 	GENERATED_BODY()
-	
 
+	friend class AStoneDefenceGameMode;
 
 private:
 	//UPROPERTY()
@@ -53,29 +51,13 @@ private:
 
 	FCharacterData CharacterDataNULL;
 
-	FBuildingTower BuildingTowerNULL;
 	
 
 protected:
 
-	virtual void BeginPlay() override;
-
-	virtual void Tick(float DeltaSeconds) override;
-
-	ARuleOfTheCharacter* SpawnCharacter(int32 CharacterID, int32 CharacterLevel, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator);
-
-	template<class T>
-	T* SpawnCharacter(int32 CharacterID, int32 CharacterLevel, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator)
-	{
-		return Cast<T>(SpawnCharacter(CharacterID, CharacterLevel, InCharacterData, Location, Rotator));
-	}
-
 	UGameSaveData* GetSaveData();
 
 	UGameSaveSlotList* GetGameSaveSlotList();
-
-	void SpawnMonsterRule(float DeltaSeconds);
-
 
 
 public:
@@ -83,16 +65,10 @@ public:
 	ATowerDefenceGameState();
 
 	const FCharacterData& AddCharacterData(const FGuid& ID, const FCharacterData& Data);
-	
-	const FBuildingTower& AddBuildingTower(const FGuid& ID, const FBuildingTower& Data);
 
 	bool RemoveCharacterData(const FGuid& ID);
 
 	FCharacterData& GetCharacterData(const FGuid& ID);
-
-	FBuildingTower& GetBuildingTower(const FGuid& ID);
-
-	const TArray<const FGuid*> GetBuildingTowersID();
 
 	bool GetTowerDataFormTable(TArray<const FCharacterData*>& Data);
 
@@ -100,23 +76,9 @@ public:
 
 	const FCharacterData& GetCharacterDataByID(int32 ID, ECharacterType Type = ECharacterType::TOWER);
 
-	void RequestInventorySlotSwap(const FGuid& A, const FGuid& B);
-
-	class AStaticMeshActor* SpawnTowersDoll(int32 ID);
-
-	FPlayerData& GetPlayerData();
-
 	FGameInstanceData& GetGameData();
 
-
 	FCharacterData& GetCharacterDataNULL();
-	FBuildingTower& GetBuildingTowerNULL();
-
-	UFUNCTION(BlueprintCallable, Category = Spawn)
-	AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
-
-	UFUNCTION(BlueprintCallable, Category = Spawn)
-	ATowers* SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
 
 	UFUNCTION(BlueprintCallable, Category = SaveData)
 	bool SaveGameData(int32 SaveNumber);

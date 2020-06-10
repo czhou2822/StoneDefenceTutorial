@@ -3,3 +3,7 @@
 
 #include "Character/Core/RuleOfTheAIController.h"
 
+ARuleOfTheCharacter* ARuleOfTheAIController::GetTarget()
+{
+	return Target.Get();
+}

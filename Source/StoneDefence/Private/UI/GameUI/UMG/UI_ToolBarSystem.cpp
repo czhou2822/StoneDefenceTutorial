@@ -21,7 +21,7 @@ void UUI_ToolBarSystem::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	//countdown
 	GameCount->SetText(FText::FromString(GetCurrentCount(GetGameState()->GetGameData().GameCount)));
 	//player gold count
-	GameGold->SetText(FText::AsNumber(GetGameState()->GetPlayerData().GameGold));
+	GameGold->SetText(FText::AsNumber(GetPlayerState()->GetPlayerData().GameGold));
 	//tower death count
 	TowerDeathNumber->SetText(FText::AsNumber(GetGameState()->GetGameData().TowersDeathNumber));
 	//kill count

@@ -81,10 +81,11 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 
 	if (!IsActive())
 	{
+		CharacterDeath();
 		//get gold
-		if (GetGameState()->GetPlayerData().bTeam == IsTeam())
+		if (GetPlayerState()->GetPlayerData().bTeam == IsTeam())
 		{
-			GetGameState()->GetPlayerData().GameGold += GetCharacterData().Gold;
+			GetPlayerState()->GetPlayerData().GameGold += GetCharacterData().Gold;
 		}
 
 
@@ -209,22 +210,10 @@ UStaticMesh* ARuleOfTheCharacter::GetDollMesh(FTransform& Transform)
 		}
 		else if (UParticleSystemComponent* NewParticleSystemComponent = Cast<UParticleSystemComponent>(Tmp))
 		{
-			if (NewParticleSystemComponent->Template && NewParticleSystemComponent->Template->Emitters.Num() > 0)
+			if (UStaticMesh* NewMesh = MeshUtils::ParticleSystemComponentToStaticMesh(NewParticleSystemComponent))
 			{
-				for (const UParticleEmitter *EmitterTmp : NewParticleSystemComponent->Template->Emitters)
-				{
-					if (EmitterTmp->LODLevels[0]->bEnabled)
-					{
-						if (UParticleModuleTypeDataMesh* MyParticleDataMesh = Cast<UParticleModuleTypeDataMesh>(EmitterTmp->LODLevels[0]->TypeDataModule))
-						{
-							if (MyParticleDataMesh->Mesh)
-							{
-								Transform = NewParticleSystemComponent->GetComponentTransform();
-								return MyParticleDataMesh->Mesh;
-							}
-						}
-					}
-				}
+				Transform = NewParticleSystemComponent->GetComponentTransform();
+				return NewMesh;
 			}
 		}
 		else if (USkeletalMeshComponent* NewSkeletalMeshComponent = Cast<USkeletalMeshComponent>(Tmp))
@@ -234,7 +223,7 @@ UStaticMesh* ARuleOfTheCharacter::GetDollMesh(FTransform& Transform)
 			NewSkeletalMeshComponent->SetWorldTransform(FTransform::Identity);
 			NewSkeletalMeshComponent->SetRelativeRotation(Transform.GetRotation());
 
-			if (UStaticMesh* NewMesh = MeshUtils::SkeletalMeshComponentToStaticMesh(GetWorld(), NewSkeletalMeshComponent))
+			if (UStaticMesh* NewMesh = MeshUtils::SkeletalMeshComponentToStaticMesh(NewSkeletalMeshComponent))
 			{
 				return NewMesh;
 			}

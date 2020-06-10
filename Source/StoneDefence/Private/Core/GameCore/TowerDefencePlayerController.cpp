@@ -1,8 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "StoneDefence/Public/Core/GameCore/TowerDefencePlayerController.h"
+#include "Core/GameCore/TowerDefencePlayerController.h"
 #include "UI/Core/UI_Data.h"
-#include "StoneDefence/Public/Core/GameCore/TowerDefenceGameCamera.h"
+#include "Engine/World.h"
+#include "Core/GameCore/TowerDefenceGameCamera.h"
+#include "StoneDefence/StoneDefenceGameMode.h"
+
+
 
 ATowerDefencePlayerController::ATowerDefencePlayerController()
 {
@@ -93,4 +97,29 @@ void ATowerDefencePlayerController::MouseMiddleButtonReleased()
 const FHitResult& ATowerDefencePlayerController::GetHitResult()
 {
 	return MouseTraceHit;
+}
+
+AStoneDefenceGameMode* ATowerDefencePlayerController::GetGameMode()
+{
+	return GetWorld()->GetAuthGameMode<AStoneDefenceGameMode>();
+}
+
+AMonsters* ATowerDefencePlayerController::SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator)
+{
+	if (GetGameMode())
+	{
+		return GetGameMode()->SpawnMonster(CharacterID, CharacterLevel, Location, Rotator);
+	}
+	return nullptr;
+}
+
+ATowers* ATowerDefencePlayerController::SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator)
+{
+	if (GetGameMode())
+	{
+		return GetGameMode()->SpawnTower(CharacterID, CharacterLevel, Location, Rotator);
+	}
+
+	return nullptr;
+
 }

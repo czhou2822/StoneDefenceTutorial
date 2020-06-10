@@ -9,6 +9,7 @@ class ARuleOfTheCharacter;
 class IRuleCharacter;
 class USkeletalMeshComponent;
 class UWorld;
+class AStaticMeshActor;
 
 namespace StoneDefenceUtils
 {
@@ -55,6 +56,9 @@ namespace StoneDefenceUtils
 		}
 		return Array;
 	}
+
+	AStaticMeshActor* SpawnTowersDoll(UWorld* World, int32 ID);
+
 }
 
 namespace Expression
@@ -64,5 +68,9 @@ namespace Expression
 
 namespace MeshUtils
 {
-	UStaticMesh* SkeletalMeshComponentToStaticMesh(UWorld* World, USkeletalMeshComponent *SkeletalMeshComponent);
+
+	UStaticMesh* ParticleSystemComponentToStaticMesh(UParticleSystemComponent* NewParticleComponent);
+	UStaticMesh* SkeletalMeshComponentToStaticMesh(USkeletalMeshComponent *SkeletalMeshComponent);
+
+
 }

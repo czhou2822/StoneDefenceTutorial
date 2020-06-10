@@ -26,7 +26,8 @@ public:
 
 	virtual void AttackTarget(ARuleOfTheCharacter * InTarget) {};
 
-
+	UFUNCTION(Blueprintable, BlueprintPure, Category = "Towers|Test")
+	ARuleOfTheCharacter* GetTarget();
 
 
 };

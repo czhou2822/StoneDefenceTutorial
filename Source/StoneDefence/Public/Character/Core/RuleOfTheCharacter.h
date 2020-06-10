@@ -8,6 +8,8 @@
 #include "Interface/Character/RuleCharacter.h"
 #include "Core/GameCore/TowerDefencePlayerController.h"
 #include "Core/GameCore/TowerDefenceGameState.h"
+#include "Core/GameCore/TowerDefencePlayerState.h"
+
 #include "RuleOfTheCharacter.generated.h"
 
 UCLASS()
@@ -88,9 +90,23 @@ public:
 	UFUNCTION(Blueprintable, BlueprintPure, Category = "Towers|Attribute")
 	bool IsActive() { return !IsDead(); }
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void AttackBegin();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void AttackEnd();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void CharacterDeath();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void AnimTag();
+
 	FORCEINLINE ATowerDefencePlayerController* GetGameController() { return GetWorld() ? GetWorld()->GetFirstPlayerController<ATowerDefencePlayerController>() : NULL; }
 
 	FORCEINLINE ATowerDefenceGameState* GetGameState() { return GetWorld() ? GetWorld()->GetGameState<ATowerDefenceGameState>() : NULL; }
+
+	FORCEINLINE ATowerDefencePlayerState* GetPlayerState() { return GetGameController()->GetPlayerState<ATowerDefencePlayerState>(); }
 
 	FORCEINLINE USceneComponent* GetHomingPoint() const { return HomingPoint; }
 

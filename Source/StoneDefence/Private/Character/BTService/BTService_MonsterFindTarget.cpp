@@ -70,6 +70,7 @@ void UBTService_MonsterFindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, u
 				{
 					if (ARuleOfTheCharacter* MonsterAI = Cast<ARuleOfTheCharacter>(MonsterAIController))
 					{
+						MonsterAI->AttackEnd();
 						MonsterAI->bAttack = false;
 					}
 				}

@@ -50,5 +50,13 @@ public:
 	void MouseMiddleButtonReleased();
 
 	const FHitResult& GetHitResult();
+
+	class AStoneDefenceGameMode* GetGameMode();
+
+	UFUNCTION()
+	class AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
+
+	UFUNCTION()
+	class ATowers* SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
 	
 };
