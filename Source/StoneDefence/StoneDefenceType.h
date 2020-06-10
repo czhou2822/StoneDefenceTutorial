@@ -5,21 +5,27 @@
 #include "CoreMinimal.h"
 #include "StoneDefenceType.generated.h"
 
+UENUM(BlueprintType)
+enum ETeam
+{
+	RED,
+	BLUE,
+	MAX,
+};
 
-UENUM()
+
+UENUM(BlueprintType)
 namespace EGameCharacterType
 {
 	enum Type
 	{
-		TOWER,
-		MAIN_TOWER,
-		MONSTER,
-		BOSS_MONSTER,
-		MAX
+		MINI,
+		BOSS,
+		MAX,
 	};
 }
 
-UENUM()
+UENUM(BlueprintType)
 enum class EBulletType : uint8
 {
 	BULLET_DIRECTLINE,     //ÎÞÕÏ°­Ö±Ïß¹¥»÷
@@ -32,10 +38,11 @@ enum class EBulletType : uint8
 };
 
 
-UENUM()
+UENUM(BlueprintType)
 enum class ECharacterType : uint8
 {
 	TOWER,
 	MONSTER,
 	
 };
+

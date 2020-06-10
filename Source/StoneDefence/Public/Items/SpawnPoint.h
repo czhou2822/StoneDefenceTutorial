@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TargetPoint.h"
+#include "StoneDefence/StoneDefenceType.h"
 #include "SpawnPoint.generated.h"
 
 /**
@@ -15,8 +16,11 @@ class STONEDEFENCE_API ASpawnPoint : public ATargetPoint
 	GENERATED_BODY()
 
 public:
+
+	ASpawnPoint();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = TargetPoint)
-	bool bTeam;
+	TEnumAsByte<ETeam> Team;
 
 
 

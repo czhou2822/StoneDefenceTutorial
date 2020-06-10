@@ -52,6 +52,10 @@ public:
 	FGuid GUID;
 
 
+	UPROPERTY(EditDefaultsOnly, Category = Type)
+	TEnumAsByte<EGameCharacterType::Type> CharacterType;
+
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -69,7 +73,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual EGameCharacterType::Type GetType();
+	virtual EGameCharacterType::Type GetCharacterType();
 
 	virtual bool IsDead();
 
@@ -77,10 +81,9 @@ public:
 
 	virtual float GetMaxHealth();
 
-	virtual bool IsTeam();
+	virtual ETeam GetTeamType();
 
 	void UpdateUI();
-
 
 	virtual FCharacterData& GetCharacterData();
 

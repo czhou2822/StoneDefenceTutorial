@@ -28,13 +28,10 @@ void AMonsters::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-EGameCharacterType::Type AMonsters::GetType()
-{
-	return EGameCharacterType::Type::MONSTER;
-}
 
-bool AMonsters::IsTeam()
+
+ETeam AMonsters:: GetTeamType()
 {
-	Super::IsTeam();
-	return false;
+	Super::GetTeamType();
+	return ETeam::BLUE;
 }

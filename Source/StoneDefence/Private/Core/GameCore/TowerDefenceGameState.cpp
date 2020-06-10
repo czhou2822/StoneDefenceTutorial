@@ -58,7 +58,7 @@ UGameSaveData* ATowerDefenceGameState::GetSaveData()
 
 
 
-const FCharacterData &ATowerDefenceGameState::AddCharacterData(const FGuid& ID, const FCharacterData& Data)
+ FCharacterData &ATowerDefenceGameState::AddCharacterData(const FGuid& ID, const FCharacterData& Data)
 {
 	return GetSaveData()->CharacterData.Add(ID, Data);
 }

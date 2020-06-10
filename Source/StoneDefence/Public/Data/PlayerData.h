@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "StoneDefence/StoneDefenceType.h"
 #include "PlayerData.generated.h"
 
 USTRUCT()
@@ -46,7 +47,7 @@ struct FPlayerData
 	FName PlayerName;
 
 	UPROPERTY(SaveGame)
-	bool bTeam;
+	TEnumAsByte<ETeam> Team;
 
 	UPROPERTY(SaveGame)
 	FString Account;

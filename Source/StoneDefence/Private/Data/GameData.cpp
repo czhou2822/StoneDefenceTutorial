@@ -14,7 +14,7 @@ void FGameInstanceData::Init()
 	bGameOver = false;
 	bCurrentLevelMissionSuccess = false;
 	CurrentLevel = INDEX_NONE;
-	TimeInterval = 2.f;
+	TimeInterval = 4.f;
 	GameCount = 6000;
 	MaxGameCount = 0;
 	GoldGrowthTime = 1.f;

@@ -20,14 +20,11 @@ ATowers::ATowers()
 	ParticleMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
-EGameCharacterType::Type ATowers::GetType()
-{
-	return EGameCharacterType::Type::TOWER;
-}
 
-bool ATowers::IsTeam()
+
+ETeam ATowers:: GetTeamType()
 {
-	return true;
+	return ETeam::RED;
 }
 
 

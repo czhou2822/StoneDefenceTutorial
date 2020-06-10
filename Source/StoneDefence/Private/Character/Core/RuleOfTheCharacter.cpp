@@ -42,6 +42,8 @@ ARuleOfTheCharacter::ARuleOfTheCharacter()
 	TraceShowCharacterInformation->SetCollisionProfileName("Scanning");
 	TraceShowCharacterInformation->SetBoxExtent(FVector(38,38,100));
 
+	CharacterType = EGameCharacterType::MINI;
+
 }
 
 // Called when the game starts or when spawned
@@ -83,7 +85,7 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 	{
 		CharacterDeath();
 		//get gold
-		if (GetPlayerState()->GetPlayerData().bTeam == IsTeam())
+		if (GetPlayerState()->GetPlayerData().Team == GetTeamType())
 		{
 			GetPlayerState()->GetPlayerData().GameGold += GetCharacterData().Gold;
 		}
@@ -156,9 +158,9 @@ float ARuleOfTheCharacter::GetMaxHealth()
 	return GetCharacterData().MaxHealth;
 }
 
-bool ARuleOfTheCharacter::IsTeam()
+ETeam ARuleOfTheCharacter::GetTeamType()
 {
-	return false;
+	return ETeam::MAX;
 }
 
 void ARuleOfTheCharacter::UpdateUI()
@@ -242,9 +244,9 @@ void ARuleOfTheCharacter::Tick(float DeltaTime)
 
 }
 
-EGameCharacterType::Type ARuleOfTheCharacter::GetType()
+EGameCharacterType::Type ARuleOfTheCharacter::GetCharacterType()
 {
-	return EGameCharacterType::Type::MAX;
+	return CharacterType;
 }
 
 

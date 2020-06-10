@@ -9,3 +9,7 @@ void ASpawnPoint::BeginPlay()
 }
 
 
+ASpawnPoint::ASpawnPoint()
+{
+	Team = ETeam::BLUE;
+}

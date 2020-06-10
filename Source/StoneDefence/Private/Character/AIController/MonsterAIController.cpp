@@ -19,11 +19,11 @@ AActor* AMonsterAIController::FindTarget()
 			ATowers* TheCharacter = *it;
 			if (TheCharacter && TheCharacter->IsActive())
 			{
-				if (TheCharacter->GetType() == EGameCharacterType::Type::TOWER)
+				if (TheCharacter->GetCharacterType() == EGameCharacterType::Type::MINI)
 				{
 					TargetTowersArray.Add(TheCharacter);
 				}
-				else if (TheCharacter->GetType() == EGameCharacterType::Type::MAIN_TOWER)
+				else if (TheCharacter->GetCharacterType() == EGameCharacterType::Type::BOSS)
 				{
 					TargetMainTowersArray.Add(TheCharacter);
 				}

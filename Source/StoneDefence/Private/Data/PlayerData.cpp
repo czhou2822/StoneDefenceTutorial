@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "StoneDefence/StoneDefenceType.h"
 #include "Data/PlayerData.h"
 
 FPlayerSkillData::FPlayerSkillData()
@@ -30,12 +30,13 @@ void FPlayerData::Init()
 {
 	PlayerID = INDEX_NONE;
 	PlayerName = NAME_None;
-	bTeam = true;
 	GameGold = 0;
 	Diamonds = 0;
 	Copper = 0;
 	MaxGameGoldTime = 1.24f;
 	GameGoldTime = 0.f;
+	Team = ETeam::RED;
+
 }
 
 bool FPlayerData::IsValid()

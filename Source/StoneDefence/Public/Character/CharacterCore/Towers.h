@@ -35,9 +35,8 @@ protected:
 public:
 	ATowers();
 
-	virtual EGameCharacterType::Type GetType();
 
-	virtual bool IsTeam();
+	virtual ETeam GetTeamType();
 
 
 };

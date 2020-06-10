@@ -27,8 +27,7 @@ FCharacterData::FCharacterData()
 	AddPassiveSkillPhysicalAttack(0.f),
 	AddPassiveSkillArmor(0),
 	AddPassiveSkillAttackSpeed(0),
-	ReducePassiveSkillCDTime(0.45f),
-	ConstructionTime(5)
+	ReducePassiveSkillCDTime(0.45f)
 
 {
 
@@ -69,7 +68,7 @@ void FCharacterData::UpdateLevel()
 {
 	float Coefficient = 0.1f;
 
-	Lv += 1;
+	Lv ++;
 	Gold += (Lv - 1) * AddGold * Coefficient;
 	MaxHealth += (Lv - 1) * AddHealth * Coefficient;
 	PhysicalAttack += (Lv - 1) * AddPhysicalAttack * Coefficient;

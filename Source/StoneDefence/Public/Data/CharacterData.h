@@ -112,8 +112,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Skill")
 	float ReducePassiveSkillCDTime;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Build")
-	float ConstructionTime;
 
 	//skill
 	////////////////////////////////////////////////////////////////////////////////////////

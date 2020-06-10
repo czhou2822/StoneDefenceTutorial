@@ -40,6 +40,8 @@ void AStoneDefenceGameMode::BeginPlay()
 		InGameState->GetGameData().AssignedMonsterAmount();
 	}
 
+	SpawnMainTowerRule();
+
 }
 
 void AStoneDefenceGameMode::Tick(float DeltaSeconds)
@@ -117,7 +119,7 @@ ARuleOfTheCharacter* AStoneDefenceGameMode::SpawnCharacter(
 		{
 			TArray<FCharacterData*> Data;
 			InCharacterData->GetAllRows(TEXT("Character Data"), Data);
-			auto GetCharacterData = [&](int32 ID) -> FCharacterData*
+			auto GetCharacterData = [&](int32 ID) -> const FCharacterData*
 			{
 				for (auto& Tmp : Data)
 				{
@@ -129,7 +131,7 @@ ARuleOfTheCharacter* AStoneDefenceGameMode::SpawnCharacter(
 				return nullptr;
 			};
 
-			if (FCharacterData* NewCharacterData = GetCharacterData(CharacterID))
+			if (const FCharacterData* NewCharacterData = GetCharacterData(CharacterID))
 			{
 				UClass* NewClass = NewCharacterData->CharacterBlueprintKey.LoadSynchronous();
 
@@ -137,17 +139,18 @@ ARuleOfTheCharacter* AStoneDefenceGameMode::SpawnCharacter(
 				{
 					if (ARuleOfTheCharacter* RuleOfTheCharacter = GetWorld()->SpawnActor<ARuleOfTheCharacter>(NewClass, Location, Rotator))
 					{
-						NewCharacterData->UpdateHealth();
+						FCharacterData &CharacterDataInst = InGameState->AddCharacterData(RuleOfTheCharacter->GUID, *NewCharacterData);
+
+						CharacterDataInst.UpdateHealth();
 
 						if (CharacterLevel > 1)
 						{
 							for (int32 i = 0; i < CharacterLevel; i++)
 							{
-								NewCharacterData->UpdateLevel();
+								CharacterDataInst.UpdateLevel();
 							}
 						}
 
-						InGameState->AddCharacterData(RuleOfTheCharacter->GUID, *NewCharacterData);
 
 						InCharacter = RuleOfTheCharacter;
 					}
@@ -250,7 +253,7 @@ int32 GetMonsterLevel(UWorld* InWorld)
 		ReturnLevel++;
 	}
 
-	ReturnLevel += FMath::Abs(2 - FMath::Sqrt(TowerDD.Variance));
+	//ReturnLevel += FMath::Abs(2 - FMath::Sqrt(TowerDD.Variance/10.f));
 
 
 
@@ -281,7 +284,7 @@ void AStoneDefenceGameMode::SpawnMonsterRule(float DeltaSeconds)
 
 							for (ASpawnPoint* TargetPoint : StoneDefenceUtils::GetAllActor<ASpawnPoint>(GetWorld()))
 							{
-								if (MyMonster->IsTeam() == TargetPoint->bTeam)
+								if (MyMonster->GetTeamType() == TargetPoint->Team)
 								{
 									MonsterSpawnPoints.Add(TargetPoint);
 									break;
@@ -293,9 +296,6 @@ void AStoneDefenceGameMode::SpawnMonsterRule(float DeltaSeconds)
 
 							InGameState->GetGameData().StageDecision();
 						}
-
-
-
 					}
 				}
 			}
@@ -303,6 +303,18 @@ void AStoneDefenceGameMode::SpawnMonsterRule(float DeltaSeconds)
 		else
 		{
 
+		}
+	}
+
+}
+
+void AStoneDefenceGameMode::SpawnMainTowerRule()
+{
+	for (ASpawnPoint* TargetPoint : StoneDefenceUtils::GetAllActor<ASpawnPoint>(GetWorld()))
+	{
+		if (TargetPoint->Team == ETeam::RED)
+		{
+			SpawnTower(0, 1, TargetPoint->GetActorLocation(), TargetPoint->GetActorRotation());
 		}
 	}
 

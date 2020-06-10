@@ -219,7 +219,7 @@ void ARuleOfTheBullet::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	{
 		if(ARuleOfTheCharacter* OtherCharacter = Cast<ARuleOfTheCharacter>(OtherActor))
 		{
-			if (InstigatorCharacter->IsTeam() != OtherCharacter->IsTeam())
+			if (InstigatorCharacter->GetTeamType() != OtherCharacter->GetTeamType())
 			{
 				if (OtherCharacter->IsActive())
 				{
@@ -272,7 +272,7 @@ void ARuleOfTheBullet::RadialDamage(const FVector& Origin, class ARuleOfTheChara
 				FVector VDistance = TheCharacter->GetActorLocation() - InstigatorCharacter->GetActorLocation();
 				if (VDistance.Size() <= 1400)
 				{
-					if (TheCharacter->IsTeam() == InstigatorCharacter->IsTeam())
+					if (TheCharacter->GetTeamType() == InstigatorCharacter->GetTeamType())
 					{
 						IgnoredActors.Add(TheCharacter);
 					}

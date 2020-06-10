@@ -39,6 +39,8 @@ public:
 
 	void SpawnMonsterRule(float DeltaSeconds);
 
+	void SpawnMainTowerRule();
+
 	UFUNCTION(BlueprintCallable, Category = Spawn)
 		AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
 
