@@ -17,8 +17,6 @@ class STONEDEFENCE_API ARuleOfTheAIController : public AAIController
 	GENERATED_BODY()
 
 
-public:
-	TWeakObjectPtr<class ARuleOfTheCharacter> Target;
 	
 public:
 	
@@ -29,5 +27,12 @@ public:
 	UFUNCTION(Blueprintable, BlueprintPure, Category = "Towers|Test")
 	ARuleOfTheCharacter* GetTarget();
 
+
+	virtual void Tick(float DeltaTime) override;
+
+
+
+public:
+	TWeakObjectPtr<class ARuleOfTheCharacter> Target;
 
 };

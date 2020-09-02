@@ -1,41 +1,43 @@
 #include "Data/CharacterData.h"
+#include "stonedefence/StoneDefenceMacro.h"
 
 FCharacterData::FCharacterData()
-	:Name(NAME_None),
-	ID(INDEX_NONE),
-	Lv(1),
-	MaxHealth(100),
-	Health(MaxHealth),
-	PhysicalAttack(10),
-	Armor(10),
-	MaxEmpircalValue(100),
-	EmpircalValue(0.f),
-	CD(2.f),
-	AttackSpeed(0.66),
-	Gold(80),
-
-	AddGold(30),
-	AddHealth(50.f),
-	AddPhysicalAttack(10.f),
-	AddArmor(8.f),
-	AddEmpiricalValue(100),
-	AddAttackSpeed(0.001f),
-	RestoreHealth(0.2f),
-
-	AddPassiveSkillHealth(0.f),
-	AddContinueHealth(0.f),
-	AddPassiveSkillPhysicalAttack(0.f),
-	AddPassiveSkillArmor(0),
-	AddPassiveSkillAttackSpeed(0),
-	ReducePassiveSkillCDTime(0.45f)
+	:Super()
 
 {
 
 }
 
-bool FCharacterData::IsValid() const
+void FCharacterData::Init()
 {
-	return ID != INDEX_NONE;
+	Super::Init();
+
+	Name = NAME_None;
+	ID = INDEX_NONE;
+	Lv = 0; 
+		MaxHealth = 100;
+	Health = MaxHealth;
+	PhysicalAttack = 10;
+	Armor = 10;
+	MaxEmpircalValue = 100;
+	EmpircalValue = 0.f;
+	CD = 2.f;
+	AttackSpeed = 0.66;
+	Gold = 80;
+
+	AddGold = 30;
+	AddHealth = 50.f;
+	AddPhysicalAttack = 10.f;
+	AddArmor = 8.f;
+	AddEmpiricalValue = 100;
+	AddAttackSpeed = 0.001f;
+	RestoreHealth = 0.2f;
+
+	Location = FVector::ZeroVector;
+	Rotation = FRotator::ZeroRotator;
+
+	Team = ETeam::RED;
+
 }
 
 float FCharacterData::GetEPPercent() const
@@ -49,7 +51,7 @@ float FCharacterData::GetEPPercent() const
 
 void FCharacterData::UpdateHealth()
 {
-	Health = MaxHealth;
+	Health = GetMaxHealth();
 }
 
 bool FCharacterData::UpdateEP(float InExp)
@@ -78,13 +80,39 @@ void FCharacterData::UpdateLevel()
 	RestoreHealth += (RestoreHealth * Lv) / 100;
 
 
-	AddPassiveSkillHealth += ((Lv - 1) * AddPassiveSkillHealth) * (Coefficient - 0.09f);
-	AddPassiveSkillPhysicalAttack += (Lv - 1) * AddPassiveSkillPhysicalAttack * (Coefficient - 0.09f);
-	AddPassiveSkillAttackSpeed += ((Lv - 1) * AddPassiveSkillAttackSpeed) * (Coefficient - 0.09f);
-	AddPassiveSkillArmor += ((Lv - 1) * AddPassiveSkillArmor) * (Coefficient - 0.09f);
+	//AddPassiveSkillHealth += ((Lv - 1) * AddPassiveSkillHealth) * (Coefficient - 0.09f);
+	//AddPassiveSkillPhysicalAttack += (Lv - 1) * AddPassiveSkillPhysicalAttack * (Coefficient - 0.09f);
+	//AddPassiveSkillAttackSpeed += ((Lv - 1) * AddPassiveSkillAttackSpeed) * (Coefficient - 0.09f);
+	//AddPassiveSkillArmor += ((Lv - 1) * AddPassiveSkillArmor) * (Coefficient - 0.09f);
 
 
-	Health = MaxHealth;
+	Health = GetMaxHealth();
+}
+
+float FCharacterData::GetMaxHealth() const
+{
+	SKILL_TABLE_ACQUISITION(MaxHealth, Health);
+}
+
+float FCharacterData::GetAttack() const
+{
+	SKILL_TABLE_ACQUISITION(PhysicalAttack, PhysicalAttack);
+}
+
+float FCharacterData::GetArmor() const
+{
+	SKILL_TABLE_ACQUISITION(Armor, Armor);
+}
+
+float FCharacterData::GetCD() const
+{
+	SKILL_TABLE_ACQUISITION_CD(CD);
+}
+
+float FCharacterData::GetAttackSpeed() const
+{
+	SKILL_TABLE_ACQUISITION(AttackSpeed, AttackSpeed);
+
 }
 
 

@@ -41,9 +41,6 @@ class STONEDEFENCE_API UUI_MainScreen : public UUI_RuleOfTheWidget
 	UPROPERTY(meta = (BindWidget))
 	class UImage* FireConcentrationPoint;
 
-protected:
-	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
-
 
 public:
 	virtual void NativeConstruct();

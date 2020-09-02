@@ -14,11 +14,28 @@
 #include "Engine/StaticMeshActor.h"
 #include "Character/Core/RuleOfTheCharacter.h"
 #include "engine/World.h"
+#include "Components/ArrowComponent.h"
+#include "Bullet/RuleOfTheBullet.h"
+#include "StoneDefence/Public/Core/GameCore/TowerDefencePlayerController.h"
 
 #if PLATFORM_WINDOWS
 #pragma optimize("", off)
 #endif
 
+
+void StoneDefenceUtils::CallUpdateAllClient(UWorld* World, TFunction<void(ATowerDefencePlayerController* MyPlayerController)> InImplement)
+{
+	if (World)
+	{
+		for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+		{
+			if (ATowerDefencePlayerController* MyPlayerController = Cast<ATowerDefencePlayerController>(It->Get()))
+			{
+				InImplement(MyPlayerController);
+			}
+		}
+	}
+}
 
 void StoneDefenceUtils::FindRangeTargetRecently(ARuleOfTheCharacter* InOwner, float Range, TArray<ARuleOfTheCharacter*>& Targets)
 {
@@ -70,6 +87,79 @@ ARuleOfTheCharacter* StoneDefenceUtils::FindTargetRecently(const TArray<ARuleOfT
 	return NULL;
 }
 
+ARuleOfTheBullet* StoneDefenceUtils::SpawnBullet(UWorld* World, FGuid CharacterID, UClass* InClass)
+{
+	TArray<ARuleOfTheCharacter*> Characters;
+	StoneDefenceUtils::GetAllActor(World, Characters);
+
+	ARuleOfTheCharacter* Character = nullptr;
+
+	for (auto& Tmp : Characters)
+	{
+		if (Tmp->GUID == CharacterID)
+		{
+			return SpawnBullet(World, Tmp, InClass, Tmp->GetFirePoint()->GetComponentLocation(), Tmp->GetFirePoint()->GetComponentRotation());
+		}
+	}
+	return nullptr;
+}
+
+ARuleOfTheBullet* StoneDefenceUtils::SpawnBullet(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot)
+{
+	if (World && NewPawn && InClass)
+	{
+		FTransform Transform;
+		Transform.SetLocation(Loc);
+		Transform.SetRotation(Rot.Quaternion());
+
+		FActorSpawnParameters ActorSpawnParameter;
+		ActorSpawnParameter.Instigator = NewPawn;
+
+		if (ARuleOfTheBullet* Bullet = World->SpawnActor<ARuleOfTheBullet>(InClass, Transform, ActorSpawnParameter))
+		{
+			return Bullet;
+		}
+	}
+	return nullptr;
+}
+
+ARuleOfTheBullet* StoneDefenceUtils::SpawnBullet(UWorld* World, ARuleOfTheCharacter* Owner, const int32 SkillID, const FVector& Loc, const FRotator& Rot)
+{
+	ARuleOfTheBullet* NewBullet = nullptr;
+	if (World)
+	{
+		if(ATowerDefenceGameState *InGameState = World->GetGameState<ATowerDefenceGameState>())
+		{
+			if (const FSkillData* InData = InGameState->GetSkillData(SkillID))
+			{
+				if (ARuleOfTheBullet* Bullet = StoneDefenceUtils::SpawnBullet(World, Owner, InData->BulletClass, Loc, Rot))
+				{
+					NewBullet = Bullet;
+				}
+			}
+		}
+	}
+	return NewBullet;
+}
+
+
+void StoneDefenceUtils::Execution(UWorld* World, const FGuid& CharacterID, TFunction<void(ARuleOfTheCharacter* InCharacter)> Code)
+{
+	if (World)
+	{
+		TArray<ARuleOfTheCharacter*> Characters;
+		StoneDefenceUtils::GetAllActor(World, Characters);
+		for (ARuleOfTheCharacter* Tmp : Characters)
+		{
+			if (Tmp->GUID == CharacterID)
+			{
+				Code(Tmp);
+				break;
+			}
+		}
+	}
+
+}
 
 AStaticMeshActor* StoneDefenceUtils::SpawnTowersDoll(UWorld* World, int32 ID)
 {
@@ -79,8 +169,8 @@ AStaticMeshActor* StoneDefenceUtils::SpawnTowersDoll(UWorld* World, int32 ID)
 	{
 		if (ATowerDefenceGameState *InGameState = World->GetGameState<ATowerDefenceGameState>())
 		{
-			TArray<const FCharacterData*> InData;
-			InGameState->GetTowerDataFormTable(InData);
+			const TArray<FCharacterData*> &InData = InGameState->GetTowerDataFormTable();
+			
 
 			for (const auto& Tmp : InData)
 			{
@@ -137,7 +227,7 @@ float Expression::GetDamage(IRuleCharacter* Enemy, IRuleCharacter* Owner)
 {
 	if (Enemy && Owner)
 	{
-		return Enemy->GetCharacterData().PhysicalAttack / ((Owner->GetCharacterData().Armor / 100.f) + 1);
+		return Enemy->GetCharacterData().GetAttack() / ((Owner->GetCharacterData().GetArmor() / 100.f) + 1);
 	}
 	return 0.f;
 }

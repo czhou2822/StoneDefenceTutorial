@@ -3,34 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/SkillData.h"
+#include "Data/PlayerSkillData.h"
 #include "StoneDefence/StoneDefenceType.h"
 #include "PlayerData.generated.h"
 
-USTRUCT()
-struct FPlayerSkillData
-{
-	GENERATED_USTRUCT_BODY()
 
-	FPlayerSkillData();
-
-	void Init();
-
-	bool IsValid();
-
-	UPROPERTY(SaveGame)
-	int32 SkillID;
-
-	UPROPERTY(SaveGame)
-	float SkillCD;
-
-	UPROPERTY(SaveGame)
-	float MaxSkillCD;
-
-	UPROPERTY(SaveGame)
-	int32 SkillNumber;
-
-
-};
 
 USTRUCT()
 struct FPlayerData

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Bullet/RuleOfTheBullet.h"
 #include "EngineUtils.h"
 
 class ARuleOfTheCharacter;
@@ -10,12 +11,21 @@ class IRuleCharacter;
 class USkeletalMeshComponent;
 class UWorld;
 class AStaticMeshActor;
+class ATowerDefencePlayerController;
 
 namespace StoneDefenceUtils
 {
+	void CallUpdateAllClient(UWorld *World, TFunction<void(ATowerDefencePlayerController* MyPlayerController)> InImplement);
+
 	void FindRangeTargetRecently(ARuleOfTheCharacter* InOwner, float Range, TArray<ARuleOfTheCharacter*>& Targets);
 
 	ARuleOfTheCharacter* FindTargetRecently(const TArray<ARuleOfTheCharacter*>& InCharacters, const FVector& Loc);
+
+	ARuleOfTheBullet* SpawnBullet(UWorld* World, FGuid CharacterID, UClass* InClass);
+
+	ARuleOfTheBullet* SpawnBullet(UWorld* World, APawn *NewPawn, UClass *InClass, const FVector &Loc, const FRotator &Rot);
+
+	ARuleOfTheBullet* SpawnBullet(UWorld* World, ARuleOfTheCharacter* Owner, const int32 SkillID, const FVector& Loc, const FRotator& Rot);
 
 
 	template<class A, class B>
@@ -57,7 +67,13 @@ namespace StoneDefenceUtils
 		return Array;
 	}
 
+
+	void Execution(UWorld* World, const FGuid& CharacterID, TFunction<void(ARuleOfTheCharacter* InCharacter)> Code);
+
+
 	AStaticMeshActor* SpawnTowersDoll(UWorld* World, int32 ID);
+
+
 
 }
 

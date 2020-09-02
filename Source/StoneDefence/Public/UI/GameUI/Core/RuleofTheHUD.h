@@ -7,6 +7,7 @@
 #include "RuleofTheHUD.generated.h"
 
 class UUI_MainScreen;
+class UUI_NativeOnDrop;
 
 UCLASS()
 class STONEDEFENCE_API ARuleofTheHUD : public AHUD
@@ -15,7 +16,11 @@ class STONEDEFENCE_API ARuleofTheHUD : public AHUD
 	
 private:
 	TSubclassOf<UUI_MainScreen> MainScreenClass;
+
+	TSubclassOf<UUI_NativeOnDrop> NativeOnDropClass;
+
 	UUI_MainScreen* MainScreen;
+	UUI_NativeOnDrop* NativeOnDropPtr;
 
 public:
 

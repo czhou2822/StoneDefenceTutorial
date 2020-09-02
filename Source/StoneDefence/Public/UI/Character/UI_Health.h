@@ -20,12 +20,20 @@ class STONEDEFENCE_API UUI_Health : public UUI_RuleOfTheWidget
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* Health;
 	
+	UPROPERTY(meta = (BindWidget))
+	class UWrapBox* SkillList;
+
+	TSubclassOf<class UUI_CharacterSkillSlot> CharacterSkillSlotClass;
 
 public:
 	virtual void NativeConstruct() override;
 
 	void SetTitle(const FString& Msg);
-
 	void SetHealth(float HeatlhValue);
+
+
+	void AddSkillSlot(FGuid SkillID);
+	bool RemoveSkillSlot(FGuid SkillID);
+
 
 };

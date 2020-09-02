@@ -23,9 +23,13 @@ ATowerDefenceGameState::ATowerDefenceGameState()
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> MyTable_Towers(TEXT("/Game/GameData/TowerData"));
 	static ConstructorHelpers::FObjectFinder<UDataTable> MyTable_Monsters(TEXT("/Game/GameData/MonsterData"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> MyTable_Skill(TEXT("/Game/GameData/CharacterSkillData"));
+
 
 	AITowerCharacterData = MyTable_Towers.Object;
 	AIMonsterCharacterData = MyTable_Monsters.Object;
+	SkillCharacterData = MyTable_Skill.Object;
+
 
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -81,62 +85,56 @@ FCharacterData& ATowerDefenceGameState::GetCharacterData(const FGuid& ID)
 	return CharacterDataNULL;
 }
 
-bool ATowerDefenceGameState::GetTowerDataFormTable(TArray<const FCharacterData*>& Data)
+const TArray<FCharacterData*>& ATowerDefenceGameState::GetTowerDataFormTable()
 {
 	if (!CacheTowerData.Num())
 	{
 		AITowerCharacterData->GetAllRows(TEXT("Character Data"), CacheTowerData);
 	}
 
-	
-	for (const auto& Tmp : CacheTowerData)
-	{
-		Data.Add(Tmp);
-	}
-	
+	return CacheTowerData;
 
-	return Data.Num() > 0;
 }
 
-bool ATowerDefenceGameState::GetMonsterDataFormTable(TArray<const FCharacterData*>& Data)
+const TArray<FCharacterData*>& ATowerDefenceGameState::GetMonsterDataFormTable()
 {
 	if (!CacheMonsterData.Num())
 	{
 		AIMonsterCharacterData->GetAllRows(TEXT("Character Data"), CacheMonsterData);
 	}
 
-	for (const auto& Tmp : CacheMonsterData)
-	{
-		Data.Add(Tmp);
-	}
-
-
-	return Data.Num() > 0;
+	return CacheMonsterData;
 }
+
+
 
 const FCharacterData& ATowerDefenceGameState::GetCharacterDataByID(int32 ID, ECharacterType Type)
 {
-	TArray<const FCharacterData*> Data;
+	auto GetMyCharacterData = [&](const TArray<FCharacterData*>& Data, int32 ID) -> const FCharacterData&
+	{
+		for (const auto& Tmp : Data)
+		{
+			if (Tmp->ID == ID)
+			{
+				return *Tmp;
+			}
+		}
+
+		return CharacterDataNULL;
+	};
 
 	switch (Type)
 	{
 		case ECharacterType::TOWER:
 		{
-			GetTowerDataFormTable(Data);
-			break;
+			const TArray<FCharacterData*> &Data = GetTowerDataFormTable();
+			return GetMyCharacterData(Data, ID);
 		}
 		case ECharacterType::MONSTER:
 		{
-			GetMonsterDataFormTable(Data);
-			break;
-		}
-	}
+			const TArray<FCharacterData*>& Data = GetMonsterDataFormTable();
+			return GetMyCharacterData(Data, ID);
 
-	for (const auto& Tmp : Data)
-	{
-		if (Tmp->ID == ID)
-		{
-			return *Tmp;
 		}
 	}
 
@@ -155,6 +153,183 @@ FCharacterData& ATowerDefenceGameState::GetCharacterDataNULL()
 {
 	return CharacterDataNULL;
 }
+
+const TArray<FSkillData*>& ATowerDefenceGameState::GetSkillDataFormTable()
+{
+	if (!CacheSkillData.Num())
+	{
+		SkillCharacterData->GetAllRows(TEXT("Skill Data"), CacheSkillData);
+	}
+
+	return CacheSkillData;
+}
+
+
+
+FSkillData& ATowerDefenceGameState::AddSkillData(const FGuid& CharacterID, const FGuid& SkillID, const FSkillData& Data)
+{
+	FCharacterData& InCharacterData = GetCharacterData(CharacterID);
+	if (InCharacterData.IsValid())
+	{
+		return InCharacterData.AdditionalSkillData.Add(SkillID, Data);
+	}
+
+	return SkillDataNULL;
+}
+
+FSkillData& ATowerDefenceGameState::GetSkillData(const FGuid& SkillID)
+{
+	for (auto& Tmp : GetSaveData()->CharacterData)
+	{
+		if (Tmp.Value.AdditionalSkillData.Contains(SkillID))
+		{
+			return Tmp.Value.AdditionalSkillData[SkillID];
+		}
+	}
+	return SkillDataNULL;
+}
+
+const FSkillData* ATowerDefenceGameState::GetSkillData(const int& SkillID)
+{
+	const TArray<FSkillData*>& SkillArray = GetSkillDataFormTable();
+	for (const auto& Tmp : SkillArray)
+	{
+		if (SkillID == Tmp->ID)
+		{
+			return Tmp;
+		}
+	}
+	return nullptr;
+}
+
+FSkillData& ATowerDefenceGameState::GetSkillData(const FGuid& CharacterID, const FGuid& SkillID)
+{
+	FCharacterData& InCharacterData = GetCharacterData(CharacterID);
+	if (InCharacterData.IsValid())
+	{
+		if (InCharacterData.AdditionalSkillData.Contains(SkillID))
+		{
+			return InCharacterData.AdditionalSkillData[SkillID];
+		}
+	}
+
+	return SkillDataNULL;
+}
+
+int32 ATowerDefenceGameState::RemoveSkillData(const FGuid& SkillID)
+{
+	for (auto& Tmp : GetSaveData()->CharacterData)
+	{
+		return Tmp.Value.AdditionalSkillData.Remove(SkillID);
+	}
+	return INDEX_NONE;
+}
+
+
+void ATowerDefenceGameState::AddSkillDataTemplateToCharacterData(const FGuid& CharacterID, int32 SkillID)
+{
+	if (const FSkillData* InData = GetSkillData(SkillID))
+	{
+		for (auto& Tmp : GetSaveData()->CharacterData)
+		{
+			if (CharacterID == Tmp.Key)
+			{
+				Tmp.Value.CharacterSkill.Add(*InData);
+				Tmp.Value.CharacterSkill[Tmp.Value.CharacterSkill.Num() - 1].ResetCD();
+				break;
+			}
+		}
+	}
+
+}
+
+bool ATowerDefenceGameState::SetSubmissionDataType(FGuid CharacterID, int32 Skill, ESubmissionSkillRequestType Type)
+{
+	FCharacterData& InCharacterData = GetCharacterData(CharacterID);
+	if (InCharacterData.IsValid())
+	{
+		for (auto &Tmp : InCharacterData.CharacterSkill)
+		{
+			if (Skill == Tmp.ID)
+			{
+				Tmp.SubmissionSkillRequestType = Type;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool ATowerDefenceGameState::IsVerificationSkillTemplate(const FGuid& CharacterID, int32 SkillID)
+{
+	const FCharacterData& InData = GetCharacterData(CharacterID);
+	if (InData.IsValid())
+	{
+		return IsVerificationSkillTemplate(InData, SkillID);
+	}
+
+	return false;
+}
+
+
+
+bool ATowerDefenceGameState::IsVerificationSkillTemplate(const FCharacterData& CharacterData, int32 SkillID)
+{
+	for (auto& InSkill : CharacterData.CharacterSkill)
+	{
+		if (InSkill.ID == SkillID)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+bool ATowerDefenceGameState::IsVerificationSkill(const FCharacterData& CharacterSkill, int32 SkillID)
+{
+
+	for (auto& InSkill : CharacterSkill.AdditionalSkillData)
+	{
+		if (InSkill.Value.ID == SkillID)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ATowerDefenceGameState::IsVerificationSkill(const FGuid& CharacterID, int32 SkillID)
+{
+	const FCharacterData& InData = GetCharacterData(CharacterID);
+
+	if (InData.IsValid())
+	{
+		return IsVerificationSkill(InData, SkillID);
+	}
+	return false;
+}
+
+void ATowerDefenceGameState::AddSkill(TPair<FGuid, FCharacterData>& InOwner, FSkillData& InSkill)
+{
+	if (!IsVerificationSkill(InOwner.Value, InSkill.ID))
+	{
+		FGuid MySkillID = FGuid::NewGuid();
+
+		InOwner.Value.AdditionalSkillData.Add(MySkillID, InSkill).ResetDuration();
+
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
+		{
+			MyPlayerController->AddSkillSlot_Server(InOwner.Key, MySkillID);
+		});
+	}
+
+
+
+}
+
+
 
 
 

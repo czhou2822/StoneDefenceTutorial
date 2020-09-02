@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataTable.h"
+#include "Data/Core/DataCore.h"
 #include "Data/SkillData.h"
 #include "CharacterData.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 USTRUCT(BlueprintType)
-struct FCharacterData : public FTableRowBase
+struct FCharacterData : public FDataCore
 {
 	GENERATED_BODY()
 
@@ -26,12 +26,7 @@ public:
 	TAssetPtr<class UTexture2D> Icon;
 
 	////////////////////////////////////////////////////////////////////////////
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Attribute")
-	FName Name;
 
-	//which characyter is it
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Attribute")
-	int32 ID;  
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Attribute")
 	float Lv;
@@ -91,39 +86,35 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Profit")
 	float RestoreHealth;
+
+	UPROPERTY()
+	FVector Location;
+
+	UPROPERTY()
+	FRotator Rotation;
+
+	UPROPERTY()
+	TEnumAsByte<ETeam> Team;
 	
-	//tower skill
+	//tower skill 
 	////////////////////////////////////////////////////////////////////////////////////////
-	UPROPERTY(EditDefaultsOnly, Category = "Skill")
-	float AddPassiveSkillHealth;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Skill")
-	float AddContinueHealth;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Skill")
-	float AddPassiveSkillPhysicalAttack;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Skill")
-	float AddPassiveSkillArmor;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Skill")
-	float AddPassiveSkillAttackSpeed;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Skill")
-	float ReducePassiveSkillCDTime;
 
 
 	//skill
 	////////////////////////////////////////////////////////////////////////////////////////
-	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
-	TMap<int32, FSkillData> CharacterSkill;
 
+
+	UPROPERTY()
+	TArray<FSkillData> CharacterSkill;
+
+	UPROPERTY()
+	TMap<FGuid,FSkillData> AdditionalSkillData;
 
 
 public:
 	FCharacterData();
 
-	bool IsValid() const;
+	virtual void Init() override;
 
 	float GetEPPercent() const;
 
@@ -133,5 +124,14 @@ public:
 
 	void UpdateLevel();
 
+	float GetMaxHealth() const;
+
+	float GetAttack() const;
+
+	float GetArmor() const;
+
+	float GetCD() const;
+
+	float GetAttackSpeed() const;
 
 };

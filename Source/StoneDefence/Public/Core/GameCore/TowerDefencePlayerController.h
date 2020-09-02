@@ -10,6 +10,12 @@
 /**
  * 
  */
+
+DECLARE_DELEGATE_OneParam(FAddSkillDelegate, FGuid);
+DECLARE_DELEGATE_TwoParams(FSpawnBulletDelegate, FGuid, UClass*);
+
+
+
 UCLASS()
 class STONEDEFENCE_API ATowerDefencePlayerController : public APlayerController
 {
@@ -27,8 +33,10 @@ public:
 	FSimpleDelegate EventMouseMiddlePressed;
 
 	FSimpleDelegate EventMouseMiddleReleased;
+	
+	FAddSkillDelegate AddSkillDelegate;
 
-
+	FSpawnBulletDelegate SpawnBulletDelegate;
 public:
 
 	ATowerDefencePlayerController();
@@ -38,6 +46,8 @@ public:
 	virtual void BeginPlay() override;
 
 	void SetInputModeGameAndUI();
+
+	class ATowerDefenceGameState* GetGameState();
 
 	virtual void SetupInputComponent() override;
 
@@ -52,6 +62,18 @@ public:
 	const FHitResult& GetHitResult();
 
 	class AStoneDefenceGameMode* GetGameMode();
+
+	UFUNCTION(/*Server*/)
+	void RemoveSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID);
+
+	UFUNCTION(/*Server*/)
+	void AddSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID);
+
+	//UFUNCTION(/*Client*/)
+	//void SpawnBullet_Server(const FGuid &CharacterID, const FGuid& SlotID);
+
+	UFUNCTION(/*Client*/)
+	void SpawnBullet_Client(const FGuid& CharacterID, const int32& SkillID);
 
 	UFUNCTION()
 	class AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);

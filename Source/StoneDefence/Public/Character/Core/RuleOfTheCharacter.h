@@ -40,7 +40,7 @@ private:
 public:
 
 	UPROPERTY(EditDefaultsOnly, Category = Death)
-		float DelayDeath;
+	float DelayDeath;
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<class ADrawText> DrawTextClass;
@@ -51,11 +51,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI)
 	FGuid GUID;
 
-
 	UPROPERTY(EditDefaultsOnly, Category = Type)
 	TEnumAsByte<EGameCharacterType::Type> CharacterType;
 
-
+	//被动技能
+	UPROPERTY(EditDefaultsOnly, Category = "Skill")
+	TArray<int32> SkillIDs;
 
 protected:
 	// Called when the game starts or when spawned
@@ -66,6 +67,8 @@ protected:
 	UFUNCTION()
 	virtual void OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
 
+
+
 public:	
 	// Sets default values for this character's properties
 	ARuleOfTheCharacter();
@@ -74,6 +77,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual EGameCharacterType::Type GetCharacterType();
+
+	virtual void RegisterTeam() {};
 
 	virtual bool IsDead();
 
@@ -85,7 +90,15 @@ public:
 
 	void UpdateUI();
 
+	//更新被动技能
+	void UpdateSkill(int32 SkillID);
+
+	UFUNCTION(/*client*/)
+	void InitSkill();
+
 	virtual FCharacterData& GetCharacterData();
+
+	void ResetGUID();
 
 	UFUNCTION(Blueprintable, BlueprintPure, Category = "Towers|Test")
 	UStaticMesh* GetDollMesh(FTransform& Transform);
@@ -104,6 +117,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void AnimTag();
+
+	UFUNCTION(/*Client*/)
+	void RemoveSkillSlot_Client(const FGuid& SlotID);
+
+	UFUNCTION(/*Client*/)
+	void AddSkillSlot_Client(const FGuid& SlotID);
 
 	FORCEINLINE ATowerDefencePlayerController* GetGameController() { return GetWorld() ? GetWorld()->GetFirstPlayerController<ATowerDefencePlayerController>() : NULL; }
 

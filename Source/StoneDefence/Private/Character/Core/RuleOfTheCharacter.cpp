@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Core/RuleOfTheCharacter.h"
 #include "Actor/DrawText.h"
+#include "Bullet/RuleOfTheBullet.h"
+#include "Character/Core/RuleOfTheCharacter.h"
 #include "Components/SceneComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
@@ -72,7 +73,7 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 			if (ADrawText* MyValueText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, GetActorLocation(), FRotator::ZeroRotator))
 			{
 				FString DamageText = FString::Printf(InText, InDamageValue);
-				MyValueText->SetTextBlock(DamageText, InColor, InDamageValue / InOwner->GetCharacterData().MaxHealth);
+				MyValueText->SetTextBlock(DamageText, InColor, InDamageValue / InOwner->GetCharacterData().GetMaxHealth());
 			}
 		}
 	};
@@ -143,6 +144,22 @@ void ARuleOfTheCharacter::OnClicked(UPrimitiveComponent* TouchedComponent, FKey 
 	//SD_print_s("Hello");
 }
 
+void ARuleOfTheCharacter::RemoveSkillSlot_Client(const FGuid& SlotID)
+{
+	if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject()))
+	{
+		HealthUI->RemoveSkillSlot(SlotID);
+	}
+}
+
+void ARuleOfTheCharacter::AddSkillSlot_Client(const FGuid& SlotID)
+{
+	if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject()))
+	{
+		HealthUI->AddSkillSlot(SlotID);
+	}
+}
+
 bool ARuleOfTheCharacter::IsDead()
 {
 	return GetHealth() <= 0.f;
@@ -155,12 +172,12 @@ float ARuleOfTheCharacter::GetHealth()
 
 float ARuleOfTheCharacter::GetMaxHealth()
 {
-	return GetCharacterData().MaxHealth;
+	return GetCharacterData().GetMaxHealth();
 }
 
 ETeam ARuleOfTheCharacter::GetTeamType()
 {
-	return ETeam::MAX;
+	return GetCharacterData().Team;
 }
 
 void ARuleOfTheCharacter::UpdateUI()
@@ -180,6 +197,34 @@ void ARuleOfTheCharacter::UpdateUI()
 
 }
 
+void ARuleOfTheCharacter::InitSkill()
+{
+	for (auto& Tmp : SkillIDs)
+	{
+		if (ARuleOfTheBullet* Bullet = StoneDefenceUtils::SpawnBullet(GetWorld(), this, Tmp, OpenFirePoint->GetComponentLocation(), OpenFirePoint->GetComponentRotation()))
+		{
+			Bullet->InitSkill();
+		}
+	}
+}
+
+void ARuleOfTheCharacter::UpdateSkill(int32 SkillID)
+{
+	for (auto& Tmp : SkillIDs)
+	{
+		if (Tmp == SkillID)
+		{
+			if (ARuleOfTheBullet* Bullet = StoneDefenceUtils::SpawnBullet(GetWorld(), this, Tmp, OpenFirePoint->GetComponentLocation(), OpenFirePoint->GetComponentRotation()))
+			{
+				Bullet->InitSkill();
+			}
+			break;
+		}
+	}
+}
+
+
+
 
 
 FCharacterData& ARuleOfTheCharacter::GetCharacterData()
@@ -194,6 +239,11 @@ FCharacterData& ARuleOfTheCharacter::GetCharacterData()
 #else
 	return GetGameState()->GetCharacterData(GUID);
 #endif
+}
+
+void ARuleOfTheCharacter::ResetGUID()
+{
+	GUID = FGuid::NewGuid();
 }
 
 UStaticMesh* ARuleOfTheCharacter::GetDollMesh(FTransform& Transform)

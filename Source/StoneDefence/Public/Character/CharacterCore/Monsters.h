@@ -24,6 +24,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	virtual ETeam GetTeamType();
+	virtual void RegisterTeam();
 
 };

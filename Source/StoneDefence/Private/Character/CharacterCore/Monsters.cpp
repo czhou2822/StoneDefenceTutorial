@@ -28,10 +28,9 @@ void AMonsters::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-
-
-ETeam AMonsters:: GetTeamType()
+void AMonsters::RegisterTeam()
 {
-	Super::GetTeamType();
-	return ETeam::BLUE;
+	GetCharacterData().Team = ETeam::BLUE;
 }
+
+

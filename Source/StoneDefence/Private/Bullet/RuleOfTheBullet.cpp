@@ -14,12 +14,16 @@
 #include "GameFramework/DamageType.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "EngineUtils.h"
+#include "StoneDefence/Public/Core/GameCore/TowerDefenceGameState.h"
+
 
 // Sets default values
 ARuleOfTheBullet::ARuleOfTheBullet()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	SkillID = INDEX_NONE;
 
 	Spline = nullptr;
 
@@ -42,6 +46,7 @@ ARuleOfTheBullet::ARuleOfTheBullet()
 	BulletType = EBulletType::BULLET_DIRECTLINE;
 
 	InitialLifeSpan = 4.0f;
+	SubmissionSkillRequestType = ESubmissionSkillRequestType::AUTO;
 }
 
 // Called when the game starts or when spawned
@@ -49,6 +54,12 @@ void ARuleOfTheBullet::BeginPlay()
 {
 	Super::BeginPlay();
 
+	BoxDamage->OnComponentBeginOverlap.AddUniqueDynamic(this, &ARuleOfTheBullet::BeginOverlap);
+
+}
+
+void ARuleOfTheBullet::InitSkill()
+{
 	if (ARuleOfTheCharacter* InstigatorCharacter = Cast<ARuleOfTheCharacter>(GetInstigator()))
 	{
 		if (ARuleOfTheAIController* InstigatorController = Cast<ARuleOfTheAIController>(InstigatorCharacter->GetController()))
@@ -116,10 +127,12 @@ void ARuleOfTheBullet::BeginPlay()
 				}
 
 				case EBulletType::BULLET_RANGE:
+				{
 					ProjectileMovement->StopMovementImmediately();
 					BoxDamage->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 					RadialDamage(GetActorLocation(), Cast<ARuleOfTheCharacter>(GetInstigator()));
 					break;
+				}
 
 				case EBulletType::BULLET_CHAIN:
 				{
@@ -130,16 +143,22 @@ void ARuleOfTheBullet::BeginPlay()
 
 					GetWorld()->GetTimerManager().SetTimer(ChainAttackHandle, this, &ARuleOfTheBullet::ChainAttack, 0.1f);
 
+					SubmissionSkillRequest();
+
 					break;
+				}
+				case EBulletType::BULLET_NONE:
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
+					ProjectileMovement->StopMovementImmediately();
+					BoxDamage->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+					SubmissionSkillRequest();
+
 				}
 				}
 			}
-		} 
+		}
 	}
-
-
-
-	BoxDamage->OnComponentBeginOverlap.AddUniqueDynamic(this, &ARuleOfTheBullet::BeginOverlap);
 
 }
 
@@ -213,89 +232,184 @@ void ARuleOfTheBullet::Tick(float DeltaTime)
 
 }
 
-void ARuleOfTheBullet::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+
+
+const FSkillData* ARuleOfTheBullet::GetSkillData()
 {
-	if (ARuleOfTheCharacter* InstigatorCharacter = Cast<ARuleOfTheCharacter>(GetInstigator()))
+	if (ATowerDefenceGameState* InGameState = GetWorld()->GetGameState<ATowerDefenceGameState>())
 	{
-		if(ARuleOfTheCharacter* OtherCharacter = Cast<ARuleOfTheCharacter>(OtherActor))
+		return InGameState->GetSkillData(SkillID);
+	}
+	return nullptr;
+}
+
+void ARuleOfTheBullet::SubmissionSkillRequest()
+{
+	if (SkillID != INDEX_NONE)
+	{
+		if (ARuleOfTheCharacter* InstigatorCharacter = Cast<ARuleOfTheCharacter>(GetInstigator()))
 		{
-			if (InstigatorCharacter->GetTeamType() != OtherCharacter->GetTeamType())
+			if (ATowerDefenceGameState* InGameState = GetWorld()->GetGameState<ATowerDefenceGameState>())
 			{
-				if (OtherCharacter->IsActive())
+				const FCharacterData& CharacterData = InstigatorCharacter->GetCharacterData();
+				if (CharacterData.IsValid())
 				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DamageParticle, SweepResult.Location);
-
-					switch (BulletType)
+					if (!InGameState->IsVerificationSkillTemplate(CharacterData, SkillID))    //客户端验证
 					{
-						case EBulletType::BULLET_DIRECTLINE:
-						case EBulletType::BULLET_LINE:
-						case EBulletType::BULLET_TRACKLINE:
-						case EBulletType::BULLET_TRACKLINE_SP:  
-						{
-							UGameplayStatics::ApplyDamage(
-								OtherCharacter, 
-								100.f, 
-								InstigatorCharacter->GetController(), 
-								InstigatorCharacter, 
-								UDamageType::StaticClass());
+						//客户端将请求提交到服务器
+						InGameState->AddSkillDataTemplateToCharacterData(InstigatorCharacter->GUID, SkillID);
 
-							Destroy();
-							break;
-						}
-						case EBulletType::BULLET_RANGELINE:
+						if (SubmissionSkillRequestType == ESubmissionSkillRequestType::MANUAL)
 						{
-							RadialDamage(OtherCharacter->GetActorLocation(), InstigatorCharacter);
-							Destroy();
-							break;
+							//设置类型 这是发生在服务器上
+							InGameState->SetSubmissionDataType(InstigatorCharacter->GUID, SkillID, SubmissionSkillRequestType);
 						}
 					}
-
 				}
-
 			}
 		}
 	}
+}
 
 
+
+//bool ARuleOfTheBullet::SetSubmissionDataType(ESubmissionSkillRequestType Type)
+//{
+//	if (SkillID != INDEX_NONE)
+//	{
+//		if (ARuleOfTheCharacter* InstigatorCharacter = Cast<ARuleOfTheCharacter>(Instigator))
+//		{
+//			if (ATowerDefenceGameState* InGameState = GetWorld()->GetGameState<ATowerDefenceGameState>())
+//			{
+//				return InGameState->SetSubmissionDataType(InstigatorCharacter->GUID, SkillID, Type);
+//			}
+//		}
+//	}
+//}
+
+void ARuleOfTheBullet::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (const FSkillData* InData = GetSkillData())
+	{
+		if (ARuleOfTheCharacter* InstigatorCharacter = Cast<ARuleOfTheCharacter>(GetInstigator()))
+		{
+			if (ARuleOfTheCharacter* OtherCharacter = Cast<ARuleOfTheCharacter>(OtherActor))
+			{
+				auto VerifyConsistency = [&]()
+				{
+					bool bVerifyConsistency = false;
+					if (InData->SkillType.SkillTargetType == ESkillTargetType::FRIENDLY_FORCE)
+					{
+						bVerifyConsistency = InstigatorCharacter->GetTeamType() == OtherCharacter->GetTeamType();
+					}
+					else if (InData->SkillType.SkillTargetType == ESkillTargetType::ENEMY)
+					{
+						bVerifyConsistency = InstigatorCharacter->GetTeamType() != OtherCharacter->GetTeamType();
+					}
+					return bVerifyConsistency;
+				};
+
+				if (VerifyConsistency())
+				{
+					if (InstigatorCharacter->GetTeamType() != OtherCharacter->GetTeamType())
+					{
+						if (OtherCharacter->IsActive())
+						{
+							UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DamageParticle, SweepResult.Location);
+
+							switch (BulletType)
+							{
+								case EBulletType::BULLET_DIRECTLINE:
+								case EBulletType::BULLET_LINE:
+								case EBulletType::BULLET_TRACKLINE:
+								case EBulletType::BULLET_TRACKLINE_SP:
+								{
+									UGameplayStatics::ApplyDamage(
+										OtherCharacter,
+										100.f,
+										InstigatorCharacter->GetController(),
+										InstigatorCharacter,
+										UDamageType::StaticClass());
+
+									SubmissionSkillRequest();
+									Destroy();
+									break;
+								}
+								case EBulletType::BULLET_RANGELINE:
+								{
+									RadialDamage(OtherCharacter->GetActorLocation(), InstigatorCharacter);
+									Destroy();
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void ARuleOfTheBullet::RadialDamage(const FVector& Origin, class ARuleOfTheCharacter* InstigatorCharacter)
 {
 	if (InstigatorCharacter)
 	{
-		TArray<AActor*> IgnoredActors;
-		//			TArray<ARuleOfTheCharacter*> TargetActors;
-		for (TActorIterator<ARuleOfTheCharacter>it(GetWorld(), ARuleOfTheCharacter::StaticClass()); it; ++it)
+		if (const FSkillData* InData = GetSkillData())
 		{
-			if (ARuleOfTheCharacter* TheCharacter = *it)
+
+			auto SpawnEffect = [&](ARuleOfTheCharacter* NewCharacter)
 			{
-				FVector VDistance = TheCharacter->GetActorLocation() - InstigatorCharacter->GetActorLocation();
-				if (VDistance.Size() <= 1400)
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DamageParticle, NewCharacter->GetActorLocation());
+
+				SubmissionSkillRequest();
+			};
+
+			TArray<AActor*> IgnoredActors;
+			//			TArray<ARuleOfTheCharacter*> TargetActors;
+			for (TActorIterator<ARuleOfTheCharacter>it(GetWorld(), ARuleOfTheCharacter::StaticClass()); it; ++it)
+			{
+				if (ARuleOfTheCharacter* TheCharacter = *it)
 				{
-					if (TheCharacter->GetTeamType() == InstigatorCharacter->GetTeamType())
+					FVector VDistance = TheCharacter->GetActorLocation() - InstigatorCharacter->GetActorLocation();
+					if (VDistance.Size() <= InData->AttackRange)
 					{
-						IgnoredActors.Add(TheCharacter);
-					}
-					else
-					{
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DamageParticle, TheCharacter->GetActorLocation());
-//						TargetActors.Add(TheCharacter);
+						if (InData->SkillType.SkillTargetType == ESkillTargetType::FRIENDLY_FORCE)
+						{
+							if (TheCharacter->GetTeamType() == InstigatorCharacter->GetTeamType())
+							{
+								SpawnEffect(TheCharacter);
+							}
+							else
+							{
+								IgnoredActors.Add(TheCharacter);
+							}
+						}
+						else if (InData->SkillType.SkillTargetType == ESkillTargetType::ENEMY)
+						{
+							if (TheCharacter->GetTeamType() != InstigatorCharacter->GetTeamType())
+							{
+								SpawnEffect(TheCharacter);
+							}
+							else
+							{
+								IgnoredActors.Add(TheCharacter);
+							}
+						}
 					}
 				}
 			}
 
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				GetWorld(),
+				100.f, 10.f,
+				Origin,
+				400.f, 1000.f, 1.f,
+				UDamageType::StaticClass(),
+				IgnoredActors,
+				GetInstigator(),
+				GetInstigator()->GetController(),
+				ECollisionChannel::ECC_MAX);
 		}
-
-		UGameplayStatics::ApplyRadialDamageWithFalloff(
-			GetWorld(), 
-			100.f, 10.f,
-			Origin, 
-			400.f, 1000.f, 1.f, 
-			UDamageType::StaticClass(), 
-			IgnoredActors, 
-			GetInstigator(),
-			GetInstigator()->GetController(), 
-			ECollisionChannel::ECC_MAX);
 	}
 }
 

@@ -10,27 +10,6 @@
 #include "UI/Core/UI_Data.h"
 #include "Components/Image.h"
 
-bool UUI_MainScreen::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
-{
-	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
-
-
-	bool bDrop = false;
-
-	if (UStoneDefenceDragDropOperation* StoneDefenceDragDropOperation = Cast<UStoneDefenceDragDropOperation>(InOperation))
-	{
-		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(StoneDefenceDragDropOperation->Payload))
-		{
-			MyInventorySlot->GetBuildingTower().bDragICO = false;
-
-			MyInventorySlot->UpdateUI();
-
-			bDrop = true;
-		}
-	}
-
-	return bDrop;
-}
 
 void UUI_MainScreen::NativeConstruct()
 {

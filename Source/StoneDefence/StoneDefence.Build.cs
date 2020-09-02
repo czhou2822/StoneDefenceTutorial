@@ -7,7 +7,9 @@ public class StoneDefence : ModuleRules
 	public StoneDefence(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+
+		bEnableExceptions = true;
+
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ 
 			"Core", 

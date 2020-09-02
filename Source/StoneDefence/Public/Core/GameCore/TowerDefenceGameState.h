@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
 #include "Data/CharacterData.h"
+#include "Data/SkillData.h"
 #include "Data/save/GameSaveData.h"
 #include "Data/GameData.h"
 #include "StoneDefence/StoneDefenceType.h"
@@ -12,12 +13,13 @@
 
 
 
+class ARuleOfTheCharacter;
 class AMonsters;
 class ATowers;
 class UDataTable;
-class ARuleOfTheCharacter;
 class UGameSaveData;
 class UGameSaveSlotList;
+struct FSkillData;
 
 /**
  * 
@@ -40,6 +42,9 @@ private:
 	UDataTable* AIMonsterCharacterData;
 
 	UPROPERTY()
+	UDataTable* SkillCharacterData;
+
+	UPROPERTY()
 	UGameSaveData* SaveData;
 
 	UPROPERTY()
@@ -49,9 +54,11 @@ private:
 
 	TArray<FCharacterData*> CacheMonsterData;
 
+	TArray<FSkillData*> CacheSkillData;
+
 	FCharacterData CharacterDataNULL;
 
-	
+	FSkillData SkillDataNULL;
 
 protected:
 
@@ -70,9 +77,9 @@ public:
 
 	FCharacterData& GetCharacterData(const FGuid& ID);
 
-	bool GetTowerDataFormTable(TArray<const FCharacterData*>& Data);
+	const TArray<FCharacterData*>& GetTowerDataFormTable();
 
-	bool GetMonsterDataFormTable(TArray<const FCharacterData*>& Data);
+	const TArray<FCharacterData*>& GetMonsterDataFormTable();
 
 	const FCharacterData& GetCharacterDataByID(int32 ID, ECharacterType Type = ECharacterType::TOWER);
 
@@ -80,11 +87,44 @@ public:
 
 	FCharacterData& GetCharacterDataNULL();
 
+	const TArray<FSkillData*>& GetSkillDataFormTable();
+
+	//dynamic skills
+	FSkillData& AddSkillData(const FGuid& CharacterID, const FGuid& SkillID, const FSkillData& Data);
+	
+	FSkillData& GetSkillData(const FGuid& SkillID);
+
+	const FSkillData* GetSkillData(const int& SkillID);
+
+	FSkillData& GetSkillData(const FGuid& CharacterID, const FGuid& SkillID);
+
+	int32 RemoveSkillData(const FGuid& SkillID);
+
+	UFUNCTION(/*Server*/)
+	void AddSkillDataTemplateToCharacterData(const FGuid& CharacterID, int32 SkillID);
+	UFUNCTION(/*Server*/)
+	bool SetSubmissionDataType(FGuid CharacterID, int32 Skill, ESubmissionSkillRequestType Type);
+
+	bool IsVerificationSkillTemplate(const FGuid& CharacterID, int32 SkillID);
+	bool IsVerificationSkillTemplate(const FCharacterData& CharacterSkill, int32 SkillID);
+	bool IsVerificationSkill(const FCharacterData& CharacterData, int32 SkillID);
+	bool IsVerificationSkill(const FGuid& CharacterID, int32 SkillID);
+
+	void AddSkill(TPair<FGuid, FCharacterData>& InOwner, FSkillData& InSkill);
+
+
+
+
 	UFUNCTION(BlueprintCallable, Category = SaveData)
 	bool SaveGameData(int32 SaveNumber);
 
 	UFUNCTION(BlueprintCallable, Category = SaveData)
 	bool ReadGameData(int32 SaveNumber);
+
+
+
+
+
 
 
 };

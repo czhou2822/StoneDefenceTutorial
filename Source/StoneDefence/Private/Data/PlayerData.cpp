@@ -1,25 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "StoneDefence/StoneDefenceType.h"
 #include "Data/PlayerData.h"
+#include "StoneDefence/StoneDefenceType.h"
 
-FPlayerSkillData::FPlayerSkillData()
-{
-	Init();
-}
-
-void FPlayerSkillData::Init()
-{
-	SkillID = INDEX_NONE;
-	SkillCD = 0;
-	MaxSkillCD = 0.f;
-	SkillNumber = INDEX_NONE;
-}
-
-bool FPlayerSkillData::IsValid()
-{
-	return SkillID != INDEX_NONE;
-}
 
 FPlayerData::FPlayerData()
 {

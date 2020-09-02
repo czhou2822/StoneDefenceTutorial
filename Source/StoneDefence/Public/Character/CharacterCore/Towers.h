@@ -35,8 +35,7 @@ protected:
 public:
 	ATowers();
 
-
-	virtual ETeam GetTeamType();
+	virtual void RegisterTeam();
 
 
 };

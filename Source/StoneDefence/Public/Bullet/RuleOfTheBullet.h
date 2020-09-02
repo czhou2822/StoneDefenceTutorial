@@ -5,7 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "StoneDefence/StoneDefenceType.h"
+#include "Data/SkillData.h"
 #include "RuleOfTheBullet.generated.h"
+
+
+class ARuleOfTheCharacter;
+class USplineComponent;
 
 UCLASS()
 class STONEDEFENCE_API ARuleOfTheBullet : public AActor
@@ -37,6 +42,8 @@ private:
 
 
 public:	
+	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
+	int32 SkillID;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
 	TEnumAsByte<EBulletType> BulletType;
@@ -50,6 +57,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet track line sp")
 	float SplineOffset;
 	
+	UPROPERTY()
+	ESubmissionSkillRequestType SubmissionSkillRequestType;
 
 protected:
 	// Called when the game starts or when spawned
@@ -70,6 +79,13 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void InitSkill();
+
+	const FSkillData* GetSkillData();
+
+	UFUNCTION(BlueprintCallable, Category = "Add Skill Request")
+	void SubmissionSkillRequest();
 
 
 };

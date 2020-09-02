@@ -4,7 +4,7 @@
 #include "Character/CharacterCore/Towers.h"
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "UI/Core/UI_Data.h"
+#include "Global/UI_Data.h"
 #include "DestructibleComponent.h"
 
 
@@ -20,12 +20,15 @@ ATowers::ATowers()
 	ParticleMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
-
-
-ETeam ATowers:: GetTeamType()
+void ATowers::RegisterTeam()
 {
-	return ETeam::RED;
+	GetCharacterData().Team = ETeam::RED;
+
 }
+
+
+
+
 
 
 

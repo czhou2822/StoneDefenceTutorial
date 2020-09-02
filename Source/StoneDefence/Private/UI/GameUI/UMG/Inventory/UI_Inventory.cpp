@@ -7,7 +7,7 @@
 #include "Components/UniformGridPanel.h"
 #include "Data/Save/GameSaveData.h"
 #include "core/GameCore/TowerDefencePlayerController.h"
-#include "UI/Core/UI_Data.h"
+#include "Global/UI_Data.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/GameCore/TowerDefenceGameState.h"
@@ -66,19 +66,18 @@ void UUI_Inventory::LayoutInventorySlot(int32 ColumnNumber, int32 RowNumber)
 			InventorySlotArray[i]->GUID = *ID[i];
 		}
 
-		TArray<const FCharacterData*> Data;
-		if (GetGameState()->GetTowerDataFormTable(Data))
-		{
-			for (int32 i = 0; i < Data.Num(); i++)
-			{
-				InventorySlotArray[i]->GetBuildingTower().TowerID = Data[i]->ID;
-				InventorySlotArray[i]->GetBuildingTower().NeedGold = Data[i]->Gold;
-				InventorySlotArray[i]->GetBuildingTower().MaxConstructionTowersCD = Data[i]->CD;
-				InventorySlotArray[i]->GetBuildingTower().ICO = Data[i]->Icon.LoadSynchronous();
+		const TArray<FCharacterData*>& Data = GetGameState()->GetTowerDataFormTable();
 
-				InventorySlotArray[i]->UpdateUI();
-			}
+		for (int32 i = 0; i < Data.Num(); i++)
+		{
+			InventorySlotArray[i]->GetBuildingTower().TowerID = Data[i]->ID;
+			InventorySlotArray[i]->GetBuildingTower().NeedGold = Data[i]->Gold;
+			InventorySlotArray[i]->GetBuildingTower().MaxConstructionTowersCD = Data[i]->CD;
+			InventorySlotArray[i]->GetBuildingTower().ICO = Data[i]->Icon.LoadSynchronous();
+
+			InventorySlotArray[i]->UpdateUI();
 		}
+		
 
 
 

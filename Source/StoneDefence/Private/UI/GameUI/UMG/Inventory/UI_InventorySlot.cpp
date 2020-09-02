@@ -3,7 +3,7 @@
 #include "UI/GameUI/UMG/Inventory/UI_InventorySlot.h"
 #include "UI/GameUI/UMG/Inventory/DragDrop/UI_ICODragDrop.h"
 #include "UI/GameUI/UMG/Tip/UI_TowerTip.h"
-#include "UI/Core/UI_Data.h"
+#include "Global/UI_Data.h"
 #include "core/GameCore/TowerDefenceGameState.h"
 #include "Components/Image.h"
 #include "Components/Button.h"

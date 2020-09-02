@@ -1,11 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Core/GameCore/TowerDefencePlayerController.h"
-#include "UI/Core/UI_Data.h"
+#include "Global/UI_Data.h"
 #include "Engine/World.h"
 #include "Core/GameCore/TowerDefenceGameCamera.h"
 #include "StoneDefence/StoneDefenceGameMode.h"
-
+#include "Character/Core/RuleOfTheCharacter.h"
+#include "StoneDefence/Public/Core/GameCore/TowerDefenceGameState.h"
+#include "StoneDefence/StoneDefenceUtils.h"
 
 
 ATowerDefencePlayerController::ATowerDefencePlayerController()
@@ -52,6 +54,11 @@ void ATowerDefencePlayerController::SetInputModeGameAndUI()
 	InputMode.SetHideCursorDuringCapture(false);
 
 	SetInputMode(InputMode);
+}
+
+ATowerDefenceGameState* ATowerDefencePlayerController::GetGameState()
+{
+	return GetWorld()->GetGameState<ATowerDefenceGameState>();
 }
 
 void ATowerDefencePlayerController::SetupInputComponent()
@@ -102,6 +109,44 @@ const FHitResult& ATowerDefencePlayerController::GetHitResult()
 AStoneDefenceGameMode* ATowerDefencePlayerController::GetGameMode()
 {
 	return GetWorld()->GetAuthGameMode<AStoneDefenceGameMode>();
+}
+
+void ATowerDefencePlayerController::RemoveSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID)
+{
+	TArray<ARuleOfTheCharacter*> Characters;
+	StoneDefenceUtils::Execution(GetWorld(), CharacterID, [&](ARuleOfTheCharacter* InCharacter)
+	{
+		InCharacter->RemoveSkillSlot_Client(SlotID);
+	});
+
+}
+
+void ATowerDefencePlayerController::AddSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID)
+{
+	StoneDefenceUtils::Execution(GetWorld(), CharacterID, [&](ARuleOfTheCharacter* InCharacter)
+	{
+		InCharacter->AddSkillSlot_Client(SlotID);
+	});
+}
+
+//void ATowerDefencePlayerController::SpawnBullet_Server(const FGuid& CharacterID, const FGuid& SlotID)
+//{
+//	StoneDefenceUtils::Execution(GetWorld(), CharacterID, [&](ARuleOfTheCharacter* InCharacter)
+//	{
+//		InCharacter->AddSkillSlot_Client(SlotID);
+//	});
+//}
+
+
+void ATowerDefencePlayerController::SpawnBullet_Client(const FGuid& CharacterID, const int32& SkillID)
+{
+	if (const FSkillData* InData = GetGameState()->GetSkillData(SkillID))
+	{
+		StoneDefenceUtils::Execution(GetWorld(), CharacterID, [&](ARuleOfTheCharacter* InCharacter)
+		{
+			InCharacter->UpdateSkill(SkillID);
+		});
+	}
 }
 
 AMonsters* ATowerDefencePlayerController::SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator)

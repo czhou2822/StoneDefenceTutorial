@@ -7,6 +7,7 @@
 #include "Components/ArrowComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Character/Core/RuleOfTheCharacter.h"
+#include "Stonedefence/StoneDefenceUtils.h"
 
 UAnimNotify_SpawnBullet::UAnimNotify_SpawnBullet()
 	:Super()
@@ -41,18 +42,11 @@ void UAnimNotify_SpawnBullet::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 #endif
 	if (AActor* Character = Cast<AActor>(MeshComp->GetOuter()))
-
 	{
-		FTransform Transform;
-		Transform.SetLocation(ComponentLocation);
-		Transform.SetRotation(ComponentRotation.Quaternion());
-
-		FActorSpawnParameters ActorSpawnParameter;
-		ActorSpawnParameter.Instigator = Cast<APawn>(Character);
-
-		if (ARuleOfTheBullet* Bullet = Character->GetWorld()->SpawnActor<ARuleOfTheBullet>(BulletClass, Transform, ActorSpawnParameter))
+		if (ARuleOfTheBullet *Bullet = StoneDefenceUtils::SpawnBullet(Character->GetWorld(), Cast<APawn>(Character), BulletClass, ComponentLocation, ComponentRotation))
 		{
-
+			Bullet->SubmissionSkillRequestType = ESubmissionSkillRequestType::MANUAL;
+			Bullet->InitSkill();
 		}
 	}
 

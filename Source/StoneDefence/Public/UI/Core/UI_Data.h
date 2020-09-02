@@ -7,11 +7,9 @@
 
 
 extern FGuid TowerICOGUID;
-
 extern AActor* TowerDoll;
-
 extern class ARuleOfTheCharacter* ClickedTargetTower;
 
-extern class ARuleOfTheCharacter* ClickedTargetMonster;
 
+extern class ARuleOfTheCharacter* ClickedTargetMonster;
 extern bool bLockGUID;

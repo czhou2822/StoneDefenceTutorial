@@ -11,6 +11,7 @@ class ATowers;
 class AMonsters;
 class ARuleOfTheCharacter;
 class UDataTable;
+class ATowerDefencePlayerController;
 /**
  * 
  */
@@ -29,6 +30,11 @@ protected:
 		return Cast<T>(SpawnCharacter(CharacterID, CharacterLevel, InCharacterData, Location, Rotator));
 	}
 
+	void UpdateSkill(float DeltaSeconds);
+
+
+
+
 
 public:
 	AStoneDefenceGameMode();
@@ -42,10 +48,9 @@ public:
 	void SpawnMainTowerRule();
 
 	UFUNCTION(BlueprintCallable, Category = Spawn)
-		AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
+	AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
 
 	UFUNCTION(BlueprintCallable, Category = Spawn)
-		ATowers* SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
-
+	ATowers* SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
 
 };
