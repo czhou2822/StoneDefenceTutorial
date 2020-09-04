@@ -127,3 +127,24 @@ void UUI_Inventory::SpawnTowerDollReleased()
 
 	TowerICOGUID = FGuid();
 }
+
+void UUI_Inventory::UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD)
+{
+	for (auto& Tmp : InventorySlotArray)
+	{
+		if (Tmp->GUID == InventorySlotGUID)
+		{
+			if (bInCD)
+			{
+				Tmp->DrawSlotCD(Tmp->GetBuildingTower().GetTowerConstructionTimePercentage());
+			}
+			else
+			{
+				Tmp->DrawSlotCD(0.f);
+			}
+
+			Tmp->UpdateTowerBuildingInfo();
+			break;
+		}
+	}
+}

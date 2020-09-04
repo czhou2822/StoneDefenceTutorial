@@ -32,6 +32,7 @@ void FCharacterData::Init()
 	AddEmpiricalValue = 100;
 	AddAttackSpeed = 0.001f;
 	RestoreHealth = 0.2f;
+	WalkSpeed = 356.f;
 
 	Location = FVector::ZeroVector;
 	Rotation = FRotator::ZeroRotator;
@@ -114,5 +115,11 @@ float FCharacterData::GetAttackSpeed() const
 	SKILL_TABLE_ACQUISITION(AttackSpeed, AttackSpeed);
 
 }
+
+float FCharacterData::GetWalkSpeed() const
+{
+	SKILL_TABLE_ACQUISITION(AttackSpeed, AttackSpeed);
+}
+
 
 

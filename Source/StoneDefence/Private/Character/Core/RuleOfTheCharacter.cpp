@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Character/Core/RuleOfTheCharacter.h"
 #include "Actor/DrawText.h"
 #include "Bullet/RuleOfTheBullet.h"
-#include "Character/Core/RuleOfTheCharacter.h"
 #include "Components/SceneComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
@@ -17,6 +17,8 @@
 #include "UI/Character/UI_Health.h"
 #include "StoneDefence/StoneDefenceUtils.h"
 #include "StoneDefence/StoneDefenceMacro.h"
+#include "Character/Damage/RuleOfTheDamageType.h"
+
 #if PLATFORM_WINDOWS
 #pragma optimize("", off)
 #endif
@@ -65,76 +67,151 @@ float ARuleOfTheCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEv
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
-	auto DrawGameText = [&](ARuleOfTheCharacter *InOwner, const TCHAR *InText, float InDamageValue, FLinearColor InColor)
+	float DamageValue = 0.f;
+
+	if (URuleOfTheDamage* DamageClass = DamageEvent.DamageTypeClass->GetDefaultObject<URuleOfTheDamage>())
 	{
-		//draw damage
-		if (DrawTextClass)
+		if (const FSkillData* SkillData = DamageClass->SkillData)
 		{
-			if (ADrawText* MyValueText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, GetActorLocation(), FRotator::ZeroRotator))
+			auto DrawGameText = [&](ARuleOfTheCharacter *InOwner, const TCHAR *InText, float InDamageValue, FLinearColor InColor)
 			{
-				FString DamageText = FString::Printf(InText, InDamageValue);
-				MyValueText->SetTextBlock(DamageText, InColor, InDamageValue / InOwner->GetCharacterData().GetMaxHealth());
+				//draw damage
+				if (DrawTextClass)
+				{
+					if (ADrawText* MyValueText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, GetActorLocation(), FRotator::ZeroRotator))
+					{
+						FString DamageText = FString::Printf(InText, InDamageValue);
+						MyValueText->SetTextBlock(DamageText, InColor, InDamageValue / InOwner->GetCharacterData().GetMaxHealth());
+					}
+				}
+			};
+
+			if (SkillData->SkillType.SkillEffectType == ESkillEffectType::SUBTRACT)
+			{
+				DamageValue = Expression::GetDamage(Cast<ARuleOfTheCharacter>(DamageCauser), this);
+
+				if (DamageValue)
+				{
+					GetCharacterData().Health -= DamageValue;
+
+					//绘制受伤字体
+					DrawGameText(this, TEXT("-%0.f"), DamageValue, FLinearColor::Red);
+				}
+
+				if (SkillData->AttackSpeed)
+				{
+					GetCharacterData().AttackSpeed -= SkillData->AttackSpeed;
+					//绘制受伤字体
+					DrawGameText(this, TEXT("-%0.f"), SkillData->AttackSpeed, FLinearColor::Black);
+				}
+				if (SkillData->PhysicalAttack)
+				{
+					GetCharacterData().PhysicalAttack -= SkillData->PhysicalAttack;
+					//绘制受伤字体
+					DrawGameText(this, TEXT("-%0.f"), SkillData->PhysicalAttack, FLinearColor::Black);
+				}
+				if (SkillData->Armor)
+				{
+					GetCharacterData().Armor -= SkillData->Armor;
+					//绘制受伤字体
+					DrawGameText(this, TEXT("-%0.f"), SkillData->Armor, FLinearColor::Black);
+				}
+
+
 			}
-		}
-	};
+					
+			else if (SkillData->SkillType.SkillEffectType == ESkillEffectType::ADD)
+			{
+				if (SkillData->PhysicalAttack)
+				{
+					GetCharacterData().PhysicalAttack += SkillData->PhysicalAttack;
+					//绘制受伤字体
+					DrawGameText(this, TEXT("-%0.f"), SkillData->PhysicalAttack, FLinearColor::Blue);
+				}
 
-	float DamageValue = Expression::GetDamage(Cast<ARuleOfTheCharacter>(DamageCauser), this);
+				if (SkillData->Armor)
+				{
+					GetCharacterData().Armor += SkillData->Armor;
+					//绘制受伤字体
+					DrawGameText(this, TEXT("-%0.f"), SkillData->Armor, FLinearColor::White);
+				}
 
-	GetCharacterData().Health -= DamageValue;
+				if (SkillData->AttackSpeed)
+				{
+					GetCharacterData().AttackSpeed += SkillData->AttackSpeed;
+					//绘制受伤字体
+					DrawGameText(this, TEXT("-%0.f"), SkillData->AttackSpeed, FLinearColor::White);
+				}
 
-	if (!IsActive())
-	{
-		CharacterDeath();
-		//get gold
-		if (GetPlayerState()->GetPlayerData().Team == GetTeamType())
-		{
-			GetPlayerState()->GetPlayerData().GameGold += GetCharacterData().Gold;
-		}
+				if (SkillData->Health)
+				{
+					GetCharacterData().Health += SkillData->Health;
+					if (GetCharacterData().Health > GetCharacterData().MaxHealth)
+					{
+						GetCharacterData().Health = GetCharacterData().MaxHealth;
+					}
+
+					//绘制受伤字体
+					DrawGameText(this, TEXT("-%0.f"), SkillData->AttackSpeed, FLinearColor::Green);
+				}
+			}
+			//死亡判断
+			if (!IsActive())
+			{
+				CharacterDeath();
+				//get gold
+				if (GetPlayerState()->GetPlayerData().Team == GetTeamType())
+				{
+					GetPlayerState()->GetPlayerData().GameGold += GetCharacterData().Gold;
+				}
 
 
-		GetCharacterData().Health = 0.0f;
-		SetLifeSpan(DelayDeath);
+				GetCharacterData().Health = 0.0f;
+				SetLifeSpan(DelayDeath);
 
 
-		Widget->SetVisibility(false);
+				Widget->SetVisibility(false);
 		
 
 
-		if (ARuleOfTheCharacter* CauserCharacter = Cast<ARuleOfTheCharacter>(DamageCauser))
-		{
-			if (CauserCharacter->IsActive())
-			{
-				if (CauserCharacter->GetCharacterData().UpdateEP(GetCharacterData().AddEmpiricalValue))
+				if (ARuleOfTheCharacter* CauserCharacter = Cast<ARuleOfTheCharacter>(DamageCauser))
 				{
-					//level sfx
-				}
-
-				DrawGameText(CauserCharacter, TEXT("+EP -%0.f"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
-			}
-			TArray<ARuleOfTheCharacter*> EnemyCharacters;
-			StoneDefenceUtils::FindRangeTargetRecently(this, 100.f, EnemyCharacters);
-			for (ARuleOfTheCharacter* InEnemy : EnemyCharacters)
-			{
-				if (InEnemy != CauserCharacter)
-				{
-					if (InEnemy->IsActive())
+					if (CauserCharacter->IsActive())
 					{
-						if (InEnemy->GetCharacterData().UpdateEP(GetCharacterData().AddEmpiricalValue * 0.3f))
+						if (CauserCharacter->GetCharacterData().UpdateEP(GetCharacterData().AddEmpiricalValue))
 						{
-							
+							//level sfx
 						}
 
-						DrawGameText(InEnemy, TEXT("+EP -%0.f"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
+						DrawGameText(CauserCharacter, TEXT("+EP -%0.f"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
+					}
+					TArray<ARuleOfTheCharacter*> EnemyCharacters;
+					StoneDefenceUtils::FindRangeTargetRecently(this, 100.f, EnemyCharacters);
+					for (ARuleOfTheCharacter* InEnemy : EnemyCharacters)
+					{
+						if (InEnemy != CauserCharacter)
+						{
+							if (InEnemy->IsActive())
+							{
+								if (InEnemy->GetCharacterData().UpdateEP(GetCharacterData().AddEmpiricalValue * 0.3f))
+								{
+							
+								}
 
+								DrawGameText(InEnemy, TEXT("+EP -%0.f"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
+
+							}
+						}
 					}
 				}
+				GetGameState()->RemoveCharacterData(GUID);
+			}
+			else
+			{
+				SubmissionSkillRequest(SkillData->ID);
 			}
 		}
-		GetGameState()->RemoveCharacterData(GUID);
-
 	}
-
-	DrawGameText(this, TEXT("-%0.f"), DamageValue, FLinearColor::Red);
 
 	return DamageValue;
 }
@@ -226,6 +303,14 @@ void ARuleOfTheCharacter::UpdateSkill(int32 SkillID)
 
 
 
+
+void ARuleOfTheCharacter::SubmissionSkillRequest(int32 SkillID)
+{
+	if (!GetGameState()->IsVerificationSkill(GUID, SkillID))
+	{
+		GetGameState()->AddSkill(GUID, SkillID);
+	}
+}
 
 FCharacterData& ARuleOfTheCharacter::GetCharacterData()
 {

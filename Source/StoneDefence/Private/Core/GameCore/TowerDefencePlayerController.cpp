@@ -8,6 +8,7 @@
 #include "Character/Core/RuleOfTheCharacter.h"
 #include "StoneDefence/Public/Core/GameCore/TowerDefenceGameState.h"
 #include "StoneDefence/StoneDefenceUtils.h"
+#include "StoneDefence/Public/UI/GameUI/Core/RuleofTheHUD.h"
 
 
 ATowerDefencePlayerController::ATowerDefencePlayerController()
@@ -167,4 +168,13 @@ ATowers* ATowerDefencePlayerController::SpawnTower(int32 CharacterID, int32 Char
 
 	return nullptr;
 
+}
+
+
+void ATowerDefencePlayerController::UpdateInventory_Client(const FGuid& InventorySlotGUID, bool bInCD)
+{
+	if (ARuleofTheHUD* NewHUD = GetHUD<ARuleofTheHUD>())
+	{
+		NewHUD->UpdateInventorySlot(InventorySlotGUID, bInCD);
+	}
 }

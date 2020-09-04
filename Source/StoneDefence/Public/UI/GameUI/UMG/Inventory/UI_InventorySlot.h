@@ -51,8 +51,8 @@ class STONEDEFENCE_API UUI_InventorySlot : public UUI_Slot
 	//UPROPERTY(EditdefaultsOnly, Category = UI)
 	//TSubclassOf<class UStoneDefenceDragDropOperation> IcoDragDrop;
 
-	UPROPERTY()
-	class UMaterialInstanceDynamic* CDMaterialDynamic;
+	//UPROPERTY()
+	//class UMaterialInstanceDynamic* CDMaterialDynamic;
 
 private:
 	void UpdateTowerCD(float InDeltaTime);
@@ -61,6 +61,7 @@ private:
 
 	void DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber);
 
+public:
 	void UpdateTowerBuildingInfo();
 	
 protected:
@@ -83,7 +84,6 @@ public:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
 	void OnClickedWidget();
 
 

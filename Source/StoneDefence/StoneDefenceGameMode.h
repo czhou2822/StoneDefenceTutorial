@@ -30,10 +30,17 @@ protected:
 		return Cast<T>(SpawnCharacter(CharacterID, CharacterLevel, InCharacterData, Location, Rotator));
 	}
 
+	void UpdatePlayerSkill(float DeltaSeconds);
+
 	void UpdateSkill(float DeltaSeconds);
 
+	void UpdateInventory(float DeltaSeconds);
 
+	void UpdatePlayerData(float DeltaSeconds);
 
+	void UpdateGameData(float DeltaSeconds);
+
+	void UpdateMonsterRule(float DeltaSeconds);
 
 
 public:
@@ -43,7 +50,6 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	void SpawnMonsterRule(float DeltaSeconds);
 
 	void SpawnMainTowerRule();
 

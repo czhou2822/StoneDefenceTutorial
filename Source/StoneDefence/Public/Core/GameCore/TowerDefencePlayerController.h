@@ -75,6 +75,9 @@ public:
 	UFUNCTION(/*Client*/)
 	void SpawnBullet_Client(const FGuid& CharacterID, const int32& SkillID);
 
+	UFUNCTION(/*Client*/)
+	void UpdateInventory_Client(const FGuid& InventorySlotGUID, bool bInCD);
+
 	UFUNCTION()
 	class AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
 

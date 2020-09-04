@@ -22,9 +22,10 @@ void FSkillData::Init()
 	PhysicalAttack = 0.f;
 	Armor = 0.f;
 	AttackRange = 0.f;
-	MaxSkillDuration = 0.f;
+	MaxSkillDuration = 5.f;
 	SkillDuration = 0.f;
-	CD = 0.f;
+	WalkSpeed = 0.f;
+	CD = 60.f;
 	SkillDurationTime = 0.f;
 	bBecomeEffective = false;
 	SubmissionSkillRequestType = ESubmissionSkillRequestType::AUTO;

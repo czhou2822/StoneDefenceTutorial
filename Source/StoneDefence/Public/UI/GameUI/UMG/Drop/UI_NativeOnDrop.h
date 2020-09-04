@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/Core/UI_RuleOfTheWidget.h"
 #include "UI_NativeOnDrop.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API UUI_NativeOnDrop : public UUserWidget
+class STONEDEFENCE_API UUI_NativeOnDrop : public UUI_RuleOfTheWidget
 {
 	GENERATED_BODY()
 	

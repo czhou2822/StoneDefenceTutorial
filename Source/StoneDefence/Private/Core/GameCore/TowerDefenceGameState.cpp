@@ -311,6 +311,11 @@ bool ATowerDefenceGameState::IsVerificationSkill(const FGuid& CharacterID, int32
 	return false;
 }
 
+void ATowerDefenceGameState::AddSkill(const FGuid& CharacterGUID, int32& InSkillID)
+{
+
+}
+
 void ATowerDefenceGameState::AddSkill(TPair<FGuid, FCharacterData>& InOwner, FSkillData& InSkill)
 {
 	if (!IsVerificationSkill(InOwner.Value, InSkill.ID))

@@ -43,6 +43,9 @@ protected:
 
 	void SpawnTowerDollReleased();
 	 
+public:
+	void UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD);
+
 
 	
 };

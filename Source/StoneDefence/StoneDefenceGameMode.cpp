@@ -46,56 +46,36 @@ void AStoneDefenceGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	//更新玩家数据
+	UpdatePlayerData(DeltaSeconds);
+
+	//更新游戏场景的规则
+	UpdateGameData(DeltaSeconds);
+
+	//生成怪物
+	UpdateMonsterRule(DeltaSeconds);
+	
+	//更新技能
+	UpdateSkill(DeltaSeconds);
+
+	//更新装备栏
+	UpdateInventory(DeltaSeconds);
+
+}
+
+void AStoneDefenceGameMode::UpdatePlayerSkill(float DeltaSeconds)
+{
 	if (ATowerDefenceGameState* InGameState = GetGameState<ATowerDefenceGameState>())
 	{
 		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
 			{
 				if (ATowerDefencePlayerState* InPlayerState = MyPlayerController->GetPlayerState<ATowerDefencePlayerState>())
 				{
-					InPlayerState->GetPlayerData().GameGoldTime += DeltaSeconds;
-					if (InPlayerState->GetPlayerData().IsAllowIncrease())
-					{
-						InPlayerState->GetPlayerData().GameGoldTime = 0.0f;
-						InPlayerState->GetPlayerData().GameGold++;
-					}
+
 				}
 			}
 		);
-
-		if (InGameState->GetGameData().GameCount <= 0.f)
-		{
-			InGameState->GetGameData().bGameOver = true;
-		}
-		else
-		{
-			InGameState->GetGameData().GameCount -= DeltaSeconds;
-		}
-
-		int32 TowersNum = 0;
-
-		TArray<ARuleOfTheCharacter*> InTowers;
-		StoneDefenceUtils::GetAllActor<ATowers>(GetWorld(), InTowers);
-
-		for (ARuleOfTheCharacter* Tower : InTowers)
-		{
-			if (Tower->IsActive())
-			{
-				TowersNum++;
-			}
-		}
-		if (TowersNum == 0)
-		{
-			InGameState->GetGameData().bGameOver = true;
-		}
-				
 	}
-
-	SpawnMonsterRule(DeltaSeconds);
-	
-	//update skill
-	UpdateSkill(DeltaSeconds);
-
-
 }
 
 void AStoneDefenceGameMode::UpdateSkill(float DeltaSeconds)
@@ -143,110 +123,110 @@ void AStoneDefenceGameMode::UpdateSkill(float DeltaSeconds)
 
 
 
-		//获取范围 有效友军
-		auto GetTeam = [&](TArray<TPair<FGuid, FCharacterData>*> &TeamArray,TPair<FGuid, FCharacterData> &Onwer,float InRange,bool bReversed = false)
-		{
-			auto TeamIner = [&](TPair<FGuid, FCharacterData> &Target)
-			{
-				if (InRange != 0)
-				{
-					float Distance = (Target.Value.Location - Onwer.Value.Location).Size();
-					if (Distance <= InRange)
-					{
-						TeamArray.Add(&Target);
-					}
-				}
-				else
-				{
-					TeamArray.Add(&Target);
-				}
-			};
+		////获取范围 有效友军
+		//auto GetTeam = [&](TArray<TPair<FGuid, FCharacterData>*> &TeamArray,TPair<FGuid, FCharacterData> &Onwer,float InRange,bool bReversed = false)
+		//{
+		//	auto TeamIner = [&](TPair<FGuid, FCharacterData> &Target)
+		//	{
+		//		if (InRange != 0)
+		//		{
+		//			float Distance = (Target.Value.Location - Onwer.Value.Location).Size();
+		//			if (Distance <= InRange)
+		//			{
+		//				TeamArray.Add(&Target);
+		//			}
+		//		}
+		//		else
+		//		{
+		//			TeamArray.Add(&Target);
+		//		}
+		//	};
 
-			for (auto &Tmp : InGameState->GetSaveData()->CharacterData)
-			{
-				if (bReversed)
-				{
-					if (Tmp.Value.Team == Onwer.Value.Team)
-					{
-						TeamIner(Tmp);
-					}
-				}
-				else
-				{
-					if (Tmp.Value.Team != Onwer.Value.Team)
-					{
-						TeamIner(Tmp);
-					}
-				}
-			}
-		};
+		//	for (auto &Tmp : InGameState->GetSaveData()->CharacterData)
+		//	{
+		//		if (bReversed)
+		//		{
+		//			if (Tmp.Value.Team == Onwer.Value.Team)
+		//			{
+		//				TeamIner(Tmp);
+		//			}
+		//		}
+		//		else
+		//		{
+		//			if (Tmp.Value.Team != Onwer.Value.Team)
+		//			{
+		//				TeamIner(Tmp);
+		//			}
+		//		}
+		//	}
+		//};
 
-		//多个角色添加同样技能
-		auto AddSkills = [&](TArray<TPair<FGuid, FCharacterData>*> &RecentForces, FSkillData & InSkill)
-		{
-			for (auto& CharacterElement : RecentForces)
-			{
-				InGameState->AddSkill(*CharacterElement, InSkill);
-			}
-		};
+		////多个角色添加同样技能
+		//auto AddSkills = [&](TArray<TPair<FGuid, FCharacterData>*> &RecentForces, FSkillData & InSkill)
+		//{
+		//	for (auto& CharacterElement : RecentForces)
+		//	{
+		//		InGameState->AddSkill(*CharacterElement, InSkill);
+		//	}
+		//};
 
-		//寻找最近的那个数据目标
-		auto FindRangeTargetRecently = [&](const TPair<FGuid, FCharacterData> &InOwner,bool bReversed = false) ->TPair<FGuid, FCharacterData>*
-		{
-			float TargetDistance = 99999999;
-			FGuid Index;
+		////寻找最近的那个数据目标
+		//auto FindRangeTargetRecently = [&](const TPair<FGuid, FCharacterData> &InOwner,bool bReversed = false) ->TPair<FGuid, FCharacterData>*
+		//{
+		//	float TargetDistance = 99999999;
+		//	FGuid Index;
 
-			auto InitTargetRecently = [&](TPair<FGuid, FCharacterData> &Pair)
-			{
-				FVector Location = Pair.Value.Location;
-				FVector TmpVector = Location - InOwner.Value.Location;
-				float Distance = TmpVector.Size();
+		//	auto InitTargetRecently = [&](TPair<FGuid, FCharacterData> &Pair)
+		//	{
+		//		FVector Location = Pair.Value.Location;
+		//		FVector TmpVector = Location - InOwner.Value.Location;
+		//		float Distance = TmpVector.Size();
 
-				if (Distance < TargetDistance && Pair.Value.Health > 0)
-				{
-					Index = Pair.Key;
-					TargetDistance = Distance;
-				}
-			};
+		//		if (Distance < TargetDistance && Pair.Value.Health > 0)
+		//		{
+		//			Index = Pair.Key;
+		//			TargetDistance = Distance;
+		//		}
+		//	};
 
-			for (auto &Tmp : InGameState->GetSaveData()->CharacterData)
-			{
-				if (InOwner.Key != Tmp.Key) //ignore self
-				{
-					if (bReversed)
-					{
-						//find enemy
-						if (InOwner.Value.Team != Tmp.Value.Team)
-						{
-							InitTargetRecently(Tmp);
-						}
-					}
-					else
-					{
-						//find friend
-						if (InOwner.Value.Team == Tmp.Value.Team)
-						{
-							InitTargetRecently(Tmp);
-						}		
-					}	
-				}
-			}
+		//	for (auto &Tmp : InGameState->GetSaveData()->CharacterData)
+		//	{
+		//		if (InOwner.Key != Tmp.Key) //ignore self
+		//		{
+		//			if (bReversed)
+		//			{
+		//				//find enemy
+		//				if (InOwner.Value.Team != Tmp.Value.Team)
+		//				{
+		//					InitTargetRecently(Tmp);
+		//				}
+		//			}
+		//			else
+		//			{
+		//				//find friend
+		//				if (InOwner.Value.Team == Tmp.Value.Team)
+		//				{
+		//					InitTargetRecently(Tmp);
+		//				}		
+		//			}	
+		//		}
+		//	}
 
-			if (Index != FGuid())
-			{
-				for (auto& GameTmp : InGameState->GetSaveData()->CharacterData)
-				{
-					if (GameTmp.Key == Index)
-					{
-						return &GameTmp;
-					}
-				}
+		//	if (Index != FGuid())
+		//	{
+		//		for (auto& GameTmp : InGameState->GetSaveData()->CharacterData)
+		//		{
+		//			if (GameTmp.Key == Index)
+		//			{
+		//				return &GameTmp;
+		//			}
+		//		}
 
-				return nullptr;
-			}
+		//		return nullptr;
+		//	}
 
-			return nullptr;
-		};
+		//	return nullptr;
+		//};
 
 		//获取的模板
 		const TArray<FSkillData*>& SkillDataTemplate = InGameState->GetSkillDataFormTable();
@@ -284,23 +264,6 @@ void AStoneDefenceGameMode::UpdateSkill(float DeltaSeconds)
 						{
 							SkillTmp.Value.SkillDurationTime = 0.f;
 
-							if (SkillTmp.Value.SkillType.SkillEffectType == ESkillEffectType::ADD)
-							{
-								Tmp.Value.Health += SkillTmp.Value.Health;
-								Tmp.Value.PhysicalAttack += SkillTmp.Value.PhysicalAttack;
-								Tmp.Value.Armor += SkillTmp.Value.Armor;
-								Tmp.Value.AttackSpeed += SkillTmp.Value.PhysicalAttack;
-								Tmp.Value.Gold += SkillTmp.Value.Gold;
-							}
-							else
-							{
-								Tmp.Value.Health -= SkillTmp.Value.Health;
-								Tmp.Value.PhysicalAttack -= SkillTmp.Value.PhysicalAttack;
-								Tmp.Value.Armor -= SkillTmp.Value.Armor;
-								Tmp.Value.AttackSpeed -= SkillTmp.Value.PhysicalAttack;
-								Tmp.Value.Gold -= SkillTmp.Value.Gold;
-							}
-
 							//call客户端 进行特效子弹播放
 							StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
 							{
@@ -335,41 +298,6 @@ void AStoneDefenceGameMode::UpdateSkill(float DeltaSeconds)
 
 						if (!InSkill.bBecomeEffective)
 						{
-							if (InSkill.SkillType.SkillAttackType == ESkillAttackType::MULTIPLE)
-							{
-								//TArray<FCharacterData*>& Recent;
-								TArray<TPair<FGuid, FCharacterData>*> Recent;
-								if (InSkill.SkillType.SkillTargetType == ESkillTargetType::FRIENDLY_FORCE)
-								{
-									GetTeam(Recent, Tmp, InSkill.AttackRange);  //get all friendly force
-								}
-								else if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ENEMY)
-								{
-									GetTeam(Recent, Tmp, InSkill.AttackRange, true);  //get all friendly force
-								}
-								if (Recent.Num())
-								{
-									AddSkills(Recent, InSkill);
-								}
-							}
-							else if (InSkill.SkillType.SkillAttackType == ESkillAttackType::SINGLE)
-							{
-								TPair<FGuid, FCharacterData>* Recent = nullptr;
-								if (InSkill.SkillType.SkillTargetType == ESkillTargetType::FRIENDLY_FORCE)
-								{
-									Recent = FindRangeTargetRecently(Tmp);
-								}
-
-								else if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ENEMY)
-								{
-									Recent = FindRangeTargetRecently(Tmp, true);
-								}
-
-								if (Recent)
-								{
-									InGameState->AddSkill(*Recent, InSkill);
-								}
-							}
 							InSkill.bBecomeEffective = true;
 						}
 						else
@@ -558,7 +486,7 @@ int32 GetMonsterLevel(UWorld* InWorld)
 
 }
 
-void AStoneDefenceGameMode::SpawnMonsterRule(float DeltaSeconds)
+void AStoneDefenceGameMode::UpdateMonsterRule(float DeltaSeconds)
 {
 	if (ATowerDefenceGameState* InGameState = GetGameState<ATowerDefenceGameState>())
 	{
@@ -616,3 +544,111 @@ void AStoneDefenceGameMode::SpawnMainTowerRule()
 
 }
 
+void AStoneDefenceGameMode::UpdateInventory(float DeltaSeconds)
+{
+	if (ATowerDefenceGameState* InGameState = GetGameState<ATowerDefenceGameState>())
+	{
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
+			{
+				if (ATowerDefencePlayerState* InPlayerState = MyPlayerController->GetPlayerState<ATowerDefencePlayerState>())
+				{
+					for (auto& Tmp : InPlayerState->GetSaveData()->BuildingTowers)
+					{
+						if (Tmp.Value.IsValid())
+						{
+							if (!Tmp.Value.bLockCD)
+							{
+								if (!Tmp.Value.bDragICO)
+								{
+									if (Tmp.Value.CurrentConstructionTowersCD> 0)
+									{
+										Tmp.Value.CurrentConstructionTowersCD -= DeltaSeconds;
+										Tmp.Value.bCallUpdateTowerInfo= true;
+
+										//通知客户端更新我们的装备CD
+										StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
+											{
+												MyPlayerController->UpdateInventory_Client(Tmp.Key, true);
+											});
+									}
+									else if (Tmp.Value.bCallUpdateTowerInfo)
+									{
+										Tmp.Value.bCallUpdateTowerInfo = false;
+										//准备构建的塔
+										Tmp.Value.TowersPerpareBuildingNumber--;
+										Tmp.Value.TowersConstructionNumber++;
+
+										//通知客户端更新我们的装备CD
+										StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
+											{
+												MyPlayerController->UpdateInventory_Client(Tmp.Key, false);
+											});
+
+										if (Tmp.Value.TowersPerpareBuildingNumber > 0)
+										{
+											Tmp.Value.ResetCD();
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		);
+	}
+}
+
+void AStoneDefenceGameMode::UpdatePlayerData(float DeltaSeconds)
+{
+	if (ATowerDefenceGameState* InGameState = GetGameState<ATowerDefenceGameState>())
+	{
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
+			{
+				if (ATowerDefencePlayerState* InPlayerState = MyPlayerController->GetPlayerState<ATowerDefencePlayerState>())
+				{
+					//游戏金币更新
+					InPlayerState->GetPlayerData().GameGoldTime += DeltaSeconds;
+					if (InPlayerState->GetPlayerData().IsAllowIncrease())
+					{
+						InPlayerState->GetPlayerData().GameGoldTime = 0.0f;
+						InPlayerState->GetPlayerData().GameGold++;
+					}
+				}
+			}
+		);
+	}
+}
+
+void AStoneDefenceGameMode::UpdateGameData(float DeltaSeconds)
+{
+	if (ATowerDefenceGameState* InGameState = GetGameState<ATowerDefenceGameState>())
+	{
+		if (InGameState->GetGameData().GameCount <= 0.f)
+		{
+			InGameState->GetGameData().bGameOver = true;
+		}
+		else
+		{
+			InGameState->GetGameData().GameCount -= DeltaSeconds;
+		}
+
+		int32 TowersNum = 0;
+
+		TArray<ARuleOfTheCharacter*> InTowers;
+		StoneDefenceUtils::GetAllActor<ATowers>(GetWorld(), InTowers);
+
+		for (ARuleOfTheCharacter* Tower : InTowers)
+		{
+			if (Tower->IsActive())
+			{
+				TowersNum++;
+			}
+		}
+		if (TowersNum == 0)
+		{
+			InGameState->GetGameData().bGameOver = true;
+		}
+
+	}
+}

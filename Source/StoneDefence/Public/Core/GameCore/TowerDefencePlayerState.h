@@ -46,5 +46,11 @@ public:
 
 	UPlayerSaveData* GetSaveData();
 
+	UFUNCTION(/*Server*/)
+	void TowersPerpareBuildingNumber(const FGuid& InventoryGUID);
+
+	UFUNCTION(/*Server*/)
+	void SetTowersDragICOState(const FGuid& InventoryGUID, bool bDragICO);
 	
+
 };

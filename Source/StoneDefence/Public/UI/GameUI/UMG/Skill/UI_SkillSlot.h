@@ -30,12 +30,12 @@ class STONEDEFENCE_API UUI_SkillSlot : public UUI_Slot
 	UPROPERTY(meta = (BindWidget))
 	class UTextblock* SkillCDValue;
 
-	UPROPERTY(meta = (BindWidget))
-	class UButton* ClickButton;
+	//UPROPERTY(meta = (BindWidget))
+	//class UButton* ClickButton;
 
 public:
 	virtual void NativeConstruct();
 
-	UFUNCTION()
+
 	void OnClickedWidget();
 };

@@ -31,17 +31,17 @@ void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (GetBuildingTower().IsValid())
-	{
-		if (!GetBuildingTower().bLockCD)
-		{
-			if (!GetBuildingTower().bDragICO)
-			{
-				UpdateTowerCD(InDeltaTime);
+	//if (GetBuildingTower().IsValid())
+	//{
+	//	if (!GetBuildingTower().bLockCD)
+	//	{
+	//		if (!GetBuildingTower().bDragICO)
+	//		{
+	//			UpdateTowerCD(InDeltaTime);
 
-			}
-		}
-	}
+	//		}
+	//	}
+	//}
 
 }
 
@@ -146,7 +146,9 @@ void UUI_InventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const 
 				StoneDefenceDragDropOperation->Payload = this;
 				OutOperation = StoneDefenceDragDropOperation;
 
-				GetBuildingTower().bDragICO = true;
+
+				//通知服务器 我们要进行拖拽
+				GetPlayerState()->SetTowersDragICOState(GUID, true);
 
 				ClearSlot();
 			}
@@ -167,7 +169,7 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 	{
 		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(StoneDefenceDragDropOperation->Payload))
 		{
-			MyInventorySlot->GetBuildingTower().bDragICO = false;
+			GetPlayerState()->SetTowersDragICOState(MyInventorySlot->GUID, false);
 			GetPlayerState()->RequestInventorySlotSwap(GUID, MyInventorySlot->GUID);
 
 			UpdateUI();
@@ -199,14 +201,15 @@ void UUI_InventorySlot::OnClickedWidget()
 {
 	if (GetBuildingTower().IsValid() )
 	{
-		if (/*GetBuildingTower().NeedGold <= */ 1)
-		{
-			GetBuildingTower().TowersPerpareBuildingNumber++;
-			if (GetBuildingTower().CurrentConstructionTowersCD <= 0)
-			{
-				GetBuildingTower().ResetCD();
-			}
-		}
+		GetPlayerState()->TowersPerpareBuildingNumber(GUID);
+		//if (/*GetBuildingTower().NeedGold <= */ 1)
+		//{
+		//	GetBuildingTower().TowersPerpareBuildingNumber++;
+		//	if (GetBuildingTower().CurrentConstructionTowersCD <= 0)
+		//	{
+		//		GetBuildingTower().ResetCD();
+		//	}
+		//}
 	}
 }
 

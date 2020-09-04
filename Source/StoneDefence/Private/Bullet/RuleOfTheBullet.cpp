@@ -15,6 +15,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "EngineUtils.h"
 #include "StoneDefence/Public/Core/GameCore/TowerDefenceGameState.h"
+#include "Character/Damage/RuleOfTheDamageType.h"
 
 
 // Sets default values
@@ -298,11 +299,11 @@ void ARuleOfTheBullet::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 				auto VerifyConsistency = [&]()
 				{
 					bool bVerifyConsistency = false;
-					if (InData->SkillType.SkillTargetType == ESkillTargetType::FRIENDLY_FORCE)
+					if (InData->SkillType.TargetType == ESkillTargetType::FRIENDLY_FORCE)
 					{
 						bVerifyConsistency = InstigatorCharacter->GetTeamType() == OtherCharacter->GetTeamType();
 					}
-					else if (InData->SkillType.SkillTargetType == ESkillTargetType::ENEMY)
+					else if (InData->SkillType.TargetType == ESkillTargetType::ENEMY)
 					{
 						bVerifyConsistency = InstigatorCharacter->GetTeamType() != OtherCharacter->GetTeamType();
 					}
@@ -324,14 +325,21 @@ void ARuleOfTheBullet::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 								case EBulletType::BULLET_TRACKLINE:
 								case EBulletType::BULLET_TRACKLINE_SP:
 								{
-									UGameplayStatics::ApplyDamage(
-										OtherCharacter,
-										100.f,
-										InstigatorCharacter->GetController(),
-										InstigatorCharacter,
-										UDamageType::StaticClass());
+									UClass* RuleOfTheDamage = URuleOfTheDamage::StaticClass();
 
-									SubmissionSkillRequest();
+									if (URuleOfTheDamage* DamageClass = RuleOfTheDamage->GetDefaultObject<URuleOfTheDamage>())
+									{
+										DamageClass->SkillData = InData;
+
+										UGameplayStatics::ApplyDamage(
+											OtherCharacter,
+											100.f,
+											InstigatorCharacter->GetController(),
+											InstigatorCharacter,
+											RuleOfTheDamage);
+
+										SubmissionSkillRequest();
+									}
 									Destroy();
 									break;
 								}
@@ -373,7 +381,7 @@ void ARuleOfTheBullet::RadialDamage(const FVector& Origin, class ARuleOfTheChara
 					FVector VDistance = TheCharacter->GetActorLocation() - InstigatorCharacter->GetActorLocation();
 					if (VDistance.Size() <= InData->AttackRange)
 					{
-						if (InData->SkillType.SkillTargetType == ESkillTargetType::FRIENDLY_FORCE)
+						if (InData->SkillType.TargetType == ESkillTargetType::FRIENDLY_FORCE)
 						{
 							if (TheCharacter->GetTeamType() == InstigatorCharacter->GetTeamType())
 							{
@@ -384,7 +392,7 @@ void ARuleOfTheBullet::RadialDamage(const FVector& Origin, class ARuleOfTheChara
 								IgnoredActors.Add(TheCharacter);
 							}
 						}
-						else if (InData->SkillType.SkillTargetType == ESkillTargetType::ENEMY)
+						else if (InData->SkillType.TargetType == ESkillTargetType::ENEMY)
 						{
 							if (TheCharacter->GetTeamType() != InstigatorCharacter->GetTeamType())
 							{
@@ -399,19 +407,33 @@ void ARuleOfTheBullet::RadialDamage(const FVector& Origin, class ARuleOfTheChara
 				}
 			}
 
-			UGameplayStatics::ApplyRadialDamageWithFalloff(
-				GetWorld(),
-				100.f, 10.f,
-				Origin,
-				400.f, 1000.f, 1.f,
-				UDamageType::StaticClass(),
-				IgnoredActors,
-				GetInstigator(),
-				GetInstigator()->GetController(),
-				ECollisionChannel::ECC_MAX);
+			UClass* RuleOfTheDamage = URuleOfTheDamage::StaticClass();
+
+			if (URuleOfTheDamage* DamageClass = RuleOfTheDamage->GetDefaultObject<URuleOfTheDamage>())
+			{
+				DamageClass->SkillData = InData;
+				UGameplayStatics::ApplyRadialDamageWithFalloff(
+					GetWorld(),
+					100.f, 10.f,
+					Origin,
+					400.f, 1000.f, 1.f,
+					RuleOfTheDamage,
+					IgnoredActors,
+					GetInstigator(),
+					GetInstigator()->GetController(),
+					ECollisionChannel::ECC_MAX);
+			}
 		}
 	}
 }
+
+//void ARuleOfTheBullet::ResetIteration()
+//{
+//	BulletType = EBulletType::BULLET_NONE;
+//
+//	InitSkill();
+//
+//}
 
 void ARuleOfTheBullet::ChainAttack()
 {
@@ -421,6 +443,7 @@ void ARuleOfTheBullet::ChainAttack()
 	}
 
 	//deal damage
+	if(const FSkillData* InData = GetSkillData())
 	{
 		if (ARuleOfTheCharacter* InstigatorCharacter = Cast<ARuleOfTheCharacter>(GetInstigator()))
 		{
@@ -428,12 +451,22 @@ void ARuleOfTheBullet::ChainAttack()
 			{
 				if (ARuleOfTheCharacter* TargetCharacter = InstigatorController->Target.Get())
 				{	
-					UGameplayStatics::ApplyDamage(
+					UGameplayStatics::SpawnEmitterAttached(DamageParticle, TargetCharacter->GetHomingPoint());
+					UGameplayStatics::SpawnEmitterAttached(OpenFireParticle, InstigatorCharacter->GetHomingPoint());
+
+					UClass* RuleOfTheDamage = URuleOfTheDamage::StaticClass();
+
+					if (URuleOfTheDamage* DamageClass = RuleOfTheDamage->GetDefaultObject<URuleOfTheDamage>())
+					{
+						DamageClass->SkillData = InData;
+
+						UGameplayStatics::ApplyDamage(
 						TargetCharacter,
 						100.f,
 						InstigatorCharacter->GetController(),
 						InstigatorCharacter,
-						UDamageType::StaticClass());
+						RuleOfTheDamage);
+					}
 				}
 			}
 		}

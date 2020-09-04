@@ -9,6 +9,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "UI/Core/UI_Data.h"
 #include "Components/Image.h"
+#include "UI/GameUI/UMG/UI_RucksackSystem.h"
 
 
 void UUI_MainScreen::NativeConstruct()
@@ -69,4 +70,12 @@ void UUI_MainScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		FireConcentrationPoint->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+}
+
+void UUI_MainScreen::UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD)
+{
+	if (RucksackSystem)
+	{
+		RucksackSystem->UpdateInventorySlot(InventorySlotGUID, bInCD);
+	}
 }

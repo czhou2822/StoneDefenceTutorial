@@ -8,7 +8,7 @@ void UUI_SkillSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ClickButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedWidget);
+	//ClickButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedWidget);
 }
 
 void UUI_SkillSlot::OnClickedWidget()

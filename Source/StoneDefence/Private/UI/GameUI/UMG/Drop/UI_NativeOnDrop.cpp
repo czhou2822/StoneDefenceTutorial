@@ -5,6 +5,7 @@
 #include "UI/GameUI/UMG/Inventory/UI_InventorySlot.h"
 #include "DragDrop/StoneDefenceDragDropOperation.h"
 
+
 bool UUI_NativeOnDrop::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
@@ -16,7 +17,8 @@ bool UUI_NativeOnDrop::NativeOnDrop(const FGeometry& InGeometry, const FDragDrop
 	{
 		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(StoneDefenceDragDropOperation->Payload))
 		{
-			MyInventorySlot->GetBuildingTower().bDragICO = false;
+
+			GetPlayerState()->SetTowersDragICOState(MyInventorySlot->GUID, false);
 
 			MyInventorySlot->UpdateUI();
 

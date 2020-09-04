@@ -2,6 +2,7 @@
 
 #include "Character/CharacterCore/Monsters.h"
 #include "UI/Core/UI_Data.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void AMonsters::BeginPlay()
 {
@@ -26,6 +27,9 @@ void AMonsters::OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPres
 void AMonsters::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//GetCharacterMovement()->MaxWalkSpeed = GetCharacterData().GetWalkSpeed();
+
 }
 
 void AMonsters::RegisterTeam()

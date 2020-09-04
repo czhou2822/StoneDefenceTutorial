@@ -96,6 +96,9 @@ public:
 	UFUNCTION(/*client*/)
 	void InitSkill();
 
+	UFUNCTION(BlueprintCallable, Category = "Add Skill Request")
+	void SubmissionSkillRequest(int32 SkillID);
+
 	virtual FCharacterData& GetCharacterData();
 
 	void ResetGUID();

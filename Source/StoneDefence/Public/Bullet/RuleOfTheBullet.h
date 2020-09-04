@@ -67,11 +67,12 @@ protected:
 	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-
 	UFUNCTION()
 	void ChainAttack();
 
 	void RadialDamage(const FVector& Origin, class ARuleOfTheCharacter* InstigatorCharacter);
+
+	//void ResetIteration();
 
 public:	
 	// Sets default values for this actor's properties

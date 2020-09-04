@@ -44,6 +44,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Character Attribute")
 	float Armor;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Character Attribute")
+	float WalkSpeed;
+
 	//exp
 	UPROPERTY(EditDefaultsOnly, Category = "Character Attribute")
 	float MaxEmpircalValue;
@@ -133,5 +136,8 @@ public:
 	float GetCD() const;
 
 	float GetAttackSpeed() const;
+
+	float GetWalkSpeed() const;
+
 
 };

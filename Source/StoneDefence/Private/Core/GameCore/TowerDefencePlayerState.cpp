@@ -77,3 +77,27 @@ UPlayerSaveData* ATowerDefencePlayerState::GetSaveData()
 	}
 	return SaveData;
 }
+
+void ATowerDefencePlayerState::TowersPerpareBuildingNumber(const FGuid& InventoryGUID)
+{
+	FBuildingTower& BT = GetBuildingTower(InventoryGUID);
+	if (BT.IsValid()) //服务器验证 防止作弊
+	{
+		if (BT.NeedGold <= GetPlayerData().GameGold)
+		{
+			BT.TowersPerpareBuildingNumber++;
+			GetPlayerData().GameGold -= BT.NeedGold;
+
+			if (BT.CurrentConstructionTowersCD <= 0)
+			{
+				BT.ResetCD();
+			}
+		}
+	}
+}
+void ATowerDefencePlayerState::SetTowersDragICOState(const FGuid& InventoryGUID, bool bDragICO)
+{
+	FBuildingTower& BT = GetBuildingTower(InventoryGUID);
+	BT.bDragICO = bDragICO;
+}
+

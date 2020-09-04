@@ -25,13 +25,6 @@ enum class ESkillType : uint8
 };
 
 UENUM(BlueprintType)
-enum class ESkillAttackType : uint8
-{
-	SINGLE,
-	MULTIPLE,
-};
-
-UENUM(BlueprintType)
 enum class ESkillTargetType : uint8
 {
 	FRIENDLY_FORCE,
@@ -51,8 +44,7 @@ struct FSkillType
 	GENERATED_USTRUCT_BODY()
 	FSkillType()
 		:SkillType(ESkillType::SECTION)
-		,SkillTargetType(ESkillTargetType::FRIENDLY_FORCE)
-		,SkillAttackType(ESkillAttackType::MULTIPLE)
+		,TargetType(ESkillTargetType::FRIENDLY_FORCE)
 		,SkillEffectType(ESkillEffectType::ADD)
 	{
 
@@ -61,10 +53,7 @@ struct FSkillType
 	ESkillType SkillType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Type")
-	ESkillTargetType SkillTargetType;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Type")
-	ESkillAttackType SkillAttackType;
+	ESkillTargetType TargetType;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Type")
 	ESkillEffectType SkillEffectType;
