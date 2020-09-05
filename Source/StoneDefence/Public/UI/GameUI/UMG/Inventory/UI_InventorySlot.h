@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/GameUI/UMG/Core/UI_Slot.h"
 #include "Data/Save/GameSaveData.h"
+#include "UI/Core/UI_RuleOfTheWidget.h"
 #include "UI_InventorySlot.generated.h"
 
 /**
@@ -15,32 +16,11 @@ class STONEDEFENCE_API UUI_InventorySlot : public UUI_Slot
 {
 	GENERATED_BODY()
 
-	UPROPERTY(meta = (BindWidget))
-	class UImage* TowerIcon;
-
-	UPROPERTY(meta = (BindWidget))
-	class UImage* TowerCD;
 
 	//Tower prepare building number
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* TowersPBNumber;
 
-	//Tower completion of construction number
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* TowerCDNumber;
-
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* TowerCDValue;
-
-	//tower inventory slot button
-	UPROPERTY(meta = (BindWidget))
-	class UButton* TowerISButton;
-
-	UPROPERTY(EditdefaultsOnly, Category = UI)
-	FName TowerMatCDName;
-
-	UPROPERTY(EditdefaultsOnly, Category = UI)
-	FName TowerClearValueName;
 
 	UPROPERTY(EditdefaultsOnly, Category = UI)
 	TSubclassOf<class UUI_ICODragDrop> ICODragDropClass;
@@ -48,18 +28,11 @@ class STONEDEFENCE_API UUI_InventorySlot : public UUI_Slot
 	UPROPERTY(EditdefaultsOnly, Category = UI)
 	TSubclassOf<class UUI_TowerTip> TowerTipClass;
 
-	//UPROPERTY(EditdefaultsOnly, Category = UI)
-	//TSubclassOf<class UStoneDefenceDragDropOperation> IcoDragDrop;
 
-	//UPROPERTY()
-	//class UMaterialInstanceDynamic* CDMaterialDynamic;
+
 
 private:
-	void UpdateTowerCD(float InDeltaTime);
-
-	void DrawTowersCD(float TowerCD);
-
-	void DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber);
+	//void UpdateTowerCD(float InDeltaTime);
 
 public:
 	void UpdateTowerBuildingInfo();
@@ -84,7 +57,7 @@ public:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	void OnClickedWidget();
+	virtual void OnClickedWidget();
 
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Tip)

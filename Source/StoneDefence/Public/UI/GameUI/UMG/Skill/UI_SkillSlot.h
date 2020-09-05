@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/GameUI/UMG/Core/UI_Slot.h"
-
+#include "UI/Core/UI_RuleOfTheWidget.h"
 #include "UI_SkillSlot.generated.h"
 
 /**
@@ -16,26 +16,19 @@ class STONEDEFENCE_API UUI_SkillSlot : public UUI_Slot
 	GENERATED_BODY()
 
 	UPROPERTY(meta = (BindWidget))
-	class UImage* SkillIcon;
-
-	UPROPERTY(meta = (BindWidget))
-	class UImage* SkillIconCD;
-
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* SkillNumber;
-
-	UPROPERTY(meta = (BindWidget))
-	class UTextblock* KeyValueNumber;
-
-	UPROPERTY(meta = (BindWidget))
-	class UTextblock* SkillCDValue;
-
-	//UPROPERTY(meta = (BindWidget))
-	//class UButton* ClickButton;
+	class UTextBlock* Number;
 
 public:
 	virtual void NativeConstruct();
 
+	virtual void OnClickedWidget();
 
-	void OnClickedWidget();
+	void UpdateUI();
+
+	FPlayerSkillData* GetPlayerSkillData();
+
+	FORCEINLINE int32 GeyKeyNumber() const { return KeyNumber; }
+
+private:
+	int32 KeyNumber;
 };

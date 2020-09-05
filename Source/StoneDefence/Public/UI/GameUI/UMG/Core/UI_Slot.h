@@ -17,32 +17,31 @@ class STONEDEFENCE_API UUI_Slot : public UUI_RuleOfTheWidget
 {
 	GENERATED_BODY()
 
-		UPROPERTY(meta = (BindWidget))
-		UImage* SlotIcon;
+	UPROPERTY(meta = (BindWidget))
+	UImage* SlotIcon;
 
 	UPROPERTY(meta = (BindWidget))
-		UImage* SlotCD;
+	UImage* SlotCD;
 
 	UPROPERTY(meta = (BindWidget))
-		UTextBlock* SlotNumber;
+	UTextBlock* SlotNumber;
 
 	UPROPERTY(meta = (BindWidget))
-		UTextBlock* SlotCDValue;
+	UTextBlock* SlotCDValue;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* ClickButton;
+	UButton* ClickButton;
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-		FName SlotMatCDName;
+	FName SlotMatCDName;
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-		FName SlotClearValueName;
+	FName SlotClearValueName;
+
+	UPROPERTY()
+	class UMaterialInstanceDynamic* CDMaterialDynamic;
 
 public:
-	//CD¶¯Ì¬²ÄÖÊ
-	UPROPERTY()
-		class UMaterialInstanceDynamic* CDMaterialDynamic;
-protected:
 	virtual void NativeConstruct() override;
 	//Tick
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
@@ -50,9 +49,10 @@ protected:
 	virtual void ClearSlot();
 
 	UFUNCTION(BlueprintCallable)
-		virtual void OnClickedWidget() {}
+	virtual void OnClickedWidget() {}
+
 public:
-	void UpdateSloInfo(int32 ConstructionNumber, float InSlotCD);
+	void UpdateSlotInfo(int32 ConstructionNumber, float InSlotCD);
 
 	void UpdateSlotUI(UTexture2D* ICO, int32 ConstructionNumber);
 

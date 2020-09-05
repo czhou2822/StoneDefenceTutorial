@@ -61,6 +61,9 @@ void AStoneDefenceGameMode::Tick(float DeltaSeconds)
 	//更新装备栏
 	UpdateInventory(DeltaSeconds);
 
+	//更新玩家技能
+	UpdatePlayerSkill(DeltaSeconds);
+
 }
 
 void AStoneDefenceGameMode::UpdatePlayerSkill(float DeltaSeconds)
@@ -71,6 +74,50 @@ void AStoneDefenceGameMode::UpdatePlayerSkill(float DeltaSeconds)
 			{
 				if (ATowerDefencePlayerState* InPlayerState = MyPlayerController->GetPlayerState<ATowerDefencePlayerState>())
 				{
+					InPlayerState->GetSaveData()->PlayerSkillData;
+
+					for (auto& Tmp : InPlayerState->GetSaveData()->PlayerSkillData)
+					{
+						if (Tmp.Value.IsValid())
+						{
+							if (Tmp.Value.CDTime > 0.f)
+							{
+								Tmp.Value.CDTime -= DeltaSeconds;
+								Tmp.Value.bBecomeEffective = true;
+
+								StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
+								{
+									MyPlayerController->UpdatePlayerSkill_Client(Tmp.Key, true);
+								});
+							}
+							else if (Tmp.Value.bBecomeEffective)
+							{
+								Tmp.Value.bBecomeEffective = false;
+
+								StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATowerDefencePlayerController* MyPlayerController)
+								{
+									MyPlayerController->UpdatePlayerSkill_Client(Tmp.Key, false);
+								});
+
+
+
+							}
+						}
+					}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 				}
 			}

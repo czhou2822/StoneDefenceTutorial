@@ -17,6 +17,15 @@ ATowerDefencePlayerController::ATowerDefencePlayerController()
 	bEnableClickEvents = true;
 }
 
+void ATowerDefencePlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetInputModeGameAndUI();
+
+	UpdateGlobalVar();
+}
+
 void ATowerDefencePlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -40,12 +49,6 @@ void ATowerDefencePlayerController::Tick(float DeltaSeconds)
 		GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel5, true, MouseTraceHit);
 	}
 
-}
-
-void ATowerDefencePlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-	SetInputModeGameAndUI();
 }
 
 void ATowerDefencePlayerController::SetInputModeGameAndUI()
@@ -100,6 +103,11 @@ void ATowerDefencePlayerController::MouseMiddleButtonPressed()
 void ATowerDefencePlayerController::MouseMiddleButtonReleased()
 {
 	EventMouseMiddleReleased.ExecuteIfBound();
+}
+
+void ATowerDefencePlayerController::UpdateGlobalVar()
+{
+	//PlayerSkillNumber = 0;
 }
 
 const FHitResult& ATowerDefencePlayerController::GetHitResult()
@@ -178,3 +186,18 @@ void ATowerDefencePlayerController::UpdateInventory_Client(const FGuid& Inventor
 		NewHUD->UpdateInventorySlot(InventorySlotGUID, bInCD);
 	}
 }
+
+void ATowerDefencePlayerController::UpdatePlayerSkill_Client(const FGuid& PlayerSlotGUID, bool bInCD)
+{
+	if (ARuleofTheHUD* NewHUD = GetHUD<ARuleofTheHUD>())
+	{
+		NewHUD->UpdatePlayerSkillSlot(PlayerSlotGUID, bInCD);
+	}
+}
+
+void ATowerDefencePlayerController::SpawnPlayerSkill_Client(const int32& PlayerSkillID)
+{
+	StoneDefenceUtils::SpawnPlayerBullet(GetWorld(), PlayerSkillID);
+}
+
+

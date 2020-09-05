@@ -27,5 +27,9 @@ public:
 	ARuleofTheHUD();
 
 	virtual void BeginPlay() override;
+
 	void UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD);
+
+	void UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bInCD);
+
 };

@@ -13,7 +13,7 @@
 
 
 class UUI_SkillSlot;
-
+class UHorizontalBox;
 
 UCLASS()
 class STONEDEFENCE_API UUI_PlayerSkillSystem : public UUI_NativeOnDrop
@@ -21,26 +21,36 @@ class STONEDEFENCE_API UUI_PlayerSkillSystem : public UUI_NativeOnDrop
 	GENERATED_BODY()
 
 	UPROPERTY(meta = (BindWidget))
-	UUI_SkillSlot* FreezeSkill;
+	UHorizontalBox* SkillList;
 
-	UPROPERTY(meta = (BindWidget))
-	UUI_SkillSlot* ExplosionSkill;
+	//UPROPERTY(meta = (BindWidget))
+	//UUI_SkillSlot* FreezeSkill;
 
-	UPROPERTY(meta = (BindWidget))
-	UUI_SkillSlot* RecoverySkill;
+	//UPROPERTY(meta = (BindWidget))
+	//UUI_SkillSlot* ExplosionSkill;
 
-	UPROPERTY(meta = (BindWidget))
-	UUI_SkillSlot* RecoverMainTowerSkill;
+	//UPROPERTY(meta = (BindWidget))
+	//UUI_SkillSlot* RecoverySkill;
 
+	//UPROPERTY(meta = (BindWidget))
+	//UUI_SkillSlot* RecoverMainTowerSkill;
+
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	TSubclassOf<UUI_SkillSlot> SkillSlotClass;
 
 public:
 	virtual void NativeConstruct();
 
-private:
-	FKey FreezeSkillKey;
-	FKey ExplosionSkillKey;
-	FKey RecoverySkillKey;
-	FKey RecoveryMainTowerSkillKey;
+	void LayoutPlayerSkillSlot();
+
+	void UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bInCD);
+
+
+//private:
+//	FKey FreezeSkillKey;
+//	FKey ExplosionSkillKey;
+//	FKey RecoverySkillKey;
+//	FKey RecoveryMainTowerSkillKey;
 
 
 

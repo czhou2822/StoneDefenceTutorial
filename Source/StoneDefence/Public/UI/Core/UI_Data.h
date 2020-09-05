@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 
 
+class ARuleOfTheCharacter;
 
+
+extern int32 SkillNumber;
 extern FGuid TowerICOGUID;
 extern AActor* TowerDoll;
-extern class ARuleOfTheCharacter* ClickedTargetTower;
-
-
-extern class ARuleOfTheCharacter* ClickedTargetMonster;
 extern bool bLockGUID;
+
+
+extern ARuleOfTheCharacter* ClickedTargetTower;
+extern ARuleOfTheCharacter* ClickedTargetMonster;

@@ -13,12 +13,13 @@ void FPlayerData::Init()
 {
 	PlayerID = INDEX_NONE;
 	PlayerName = NAME_None;
-	GameGold = 0;
+	GameGold = 5000;
 	Diamonds = 0;
 	Copper = 0;
-	MaxGameGoldTime = 1.24f;
-	GameGoldTime = 0.f;
 	Team = ETeam::RED;
+	GameGoldTime = 0.f;
+	MaxGameGoldTime = 1.24f;
+	SkillIDs.Add(0);
 
 }
 

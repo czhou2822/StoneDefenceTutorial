@@ -12,12 +12,15 @@ class USkeletalMeshComponent;
 class UWorld;
 class AStaticMeshActor;
 class ATowerDefencePlayerController;
+class APlayerSkillSlotActor;
 
 namespace StoneDefenceUtils
 {
 	void CallUpdateAllClient(UWorld *World, TFunction<void(ATowerDefencePlayerController* MyPlayerController)> InImplement);
 
 	void FindRangeTargetRecently(ARuleOfTheCharacter* InOwner, float Range, TArray<ARuleOfTheCharacter*>& Targets);
+
+	APlayerSkillSlotActor* SpawnPlayerBullet(UWorld* World, int32 SkillID);
 
 	ARuleOfTheCharacter* FindTargetRecently(const TArray<ARuleOfTheCharacter*>& InCharacters, const FVector& Loc);
 

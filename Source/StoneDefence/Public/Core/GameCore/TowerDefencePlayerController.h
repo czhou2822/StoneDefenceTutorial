@@ -59,6 +59,8 @@ public:
 
 	void MouseMiddleButtonReleased();
 
+	void UpdateGlobalVar();
+
 	const FHitResult& GetHitResult();
 
 	class AStoneDefenceGameMode* GetGameMode();
@@ -77,6 +79,12 @@ public:
 
 	UFUNCTION(/*Client*/)
 	void UpdateInventory_Client(const FGuid& InventorySlotGUID, bool bInCD);
+
+	UFUNCTION(/*Client*/)
+	void SpawnPlayerSkill_Client(const int32& PlayerSkillID);
+
+	UFUNCTION(/*Client*/)
+	void UpdatePlayerSkill_Client(const FGuid& PlayerSlotGUID, bool bInCD);
 
 	UFUNCTION()
 	class AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);

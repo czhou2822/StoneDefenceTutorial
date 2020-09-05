@@ -16,6 +16,7 @@
 #include "engine/World.h"
 #include "Components/ArrowComponent.h"
 #include "Bullet/RuleOfTheBullet.h"
+#include "Bullet/PlayerSkillSlotActor.h"
 #include "StoneDefence/Public/Core/GameCore/TowerDefencePlayerController.h"
 
 #if PLATFORM_WINDOWS
@@ -55,6 +56,22 @@ void StoneDefenceUtils::FindRangeTargetRecently(ARuleOfTheCharacter* InOwner, fl
 			}
 		}
 	}
+}
+
+APlayerSkillSlotActor* StoneDefenceUtils::SpawnPlayerBullet(UWorld* World, int32 SkillID)
+{
+	if (ATowerDefencePlayerState* InPlayerState = World->GetFirstPlayerController()->GetPlayerState<ATowerDefencePlayerState>())
+	{
+		if (const FPlayerSkillData* SkillDataState = InPlayerState->GetPlayerSkillDataFormTable(SkillID))
+		{
+			if (APlayerSkillSlotActor* PlayerSkillSlot = World->SpawnActor<APlayerSkillSlotActor>(SkillDataState->BulletClass, FVector::ZeroVector, FRotator::ZeroRotator))
+			{
+				return PlayerSkillSlot;
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 ARuleOfTheCharacter* StoneDefenceUtils::FindTargetRecently(const TArray<ARuleOfTheCharacter*>& InCharacters, const FVector& Loc)

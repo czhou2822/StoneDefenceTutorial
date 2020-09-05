@@ -19,12 +19,7 @@
 void UUI_InventorySlot::NativeConstruct()
 {
 	Super::NativeConstruct();
-	TowerISButton->OnClicked.AddDynamic(this, &UUI_InventorySlot::OnClickedWidget);
 
-	if (TowerCD)
-	{
-		CDMaterialDynamic = TowerCD->GetDynamicMaterial();
-	}
 }
 
 void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -45,71 +40,39 @@ void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 }
 
-void UUI_InventorySlot::UpdateTowerCD(float InDeltaTime)
-{
-	if (GetBuildingTower().CurrentConstructionTowersCD > 0)
-	{
-		DrawTowersCD(GetBuildingTower().GetTowerConstructionTimePercentage());
-		GetBuildingTower().CurrentConstructionTowersCD -= InDeltaTime;
-		GetBuildingTower().bCallUpdateTowerInfo = true;
-		UpdateTowerBuildingInfo();
-	}
-	else if (GetBuildingTower().bCallUpdateTowerInfo)
-	{
-		GetBuildingTower().bCallUpdateTowerInfo = false;
-
-		GetBuildingTower().TowersPerpareBuildingNumber--;
-		GetBuildingTower().TowersConstructionNumber++;
-
-		DrawTowersCD(0.0f);
-
-		if (GetBuildingTower().TowersPerpareBuildingNumber > 0)
-		{
-			GetBuildingTower().ResetCD();
-		}
-		UpdateTowerBuildingInfo();
-
-	}
-
-}
-
-void UUI_InventorySlot::DrawTowersCD(float InTowerCD)
-{
-	if (CDMaterialDynamic)
-	{
-		if (InTowerCD > 0.0f && InTowerCD < 1.f)
-		{
-			CDMaterialDynamic->SetScalarParameterValue(TowerClearValueName, true);
-			TowerCD->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-		}
-		else
-		{
-			CDMaterialDynamic->SetScalarParameterValue(TowerClearValueName, false);
-			TowerCD->SetVisibility(ESlateVisibility::Hidden);
-		}
-		CDMaterialDynamic->SetScalarParameterValue(TowerMatCDName, InTowerCD);
-	}
-}
+//void UUI_InventorySlot::UpdateTowerCD(float InDeltaTime)
+//{
+//	if (GetBuildingTower().CurrentConstructionTowersCD > 0)
+//	{
+//		DrawTowersCD(GetBuildingTower().GetTowerConstructionTimePercentage());
+//		GetBuildingTower().CurrentConstructionTowersCD -= InDeltaTime;
+//		GetBuildingTower().bCallUpdateTowerInfo = true;
+//		UpdateTowerBuildingInfo();
+//	}
+//	else if (GetBuildingTower().bCallUpdateTowerInfo)
+//	{
+//		GetBuildingTower().bCallUpdateTowerInfo = false;
+//
+//		GetBuildingTower().TowersPerpareBuildingNumber--;
+//		GetBuildingTower().TowersConstructionNumber++;
+//
+//		DrawTowersCD(0.0f);
+//
+//		if (GetBuildingTower().TowersPerpareBuildingNumber > 0)
+//		{
+//			GetBuildingTower().ResetCD();
+//		}
+//		UpdateTowerBuildingInfo();
+//
+//	}
+//
+//}
 
 
-
-void UUI_InventorySlot::DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber)
-{
-	if (TextNumber < 1 || !GetBuildingTower().IsValid())
-	{
-		TextNumberBlock->SetVisibility(ESlateVisibility::Hidden);
-	}
-	else
-	{
-		TextNumberBlock->SetText(FText::FromString(FString::Printf(TEXT("%02d"), TextNumber)));
-		TextNumberBlock->SetVisibility(ESlateVisibility::HitTestInvisible);
-	}
-}
 
 void UUI_InventorySlot::UpdateTowerBuildingInfo()
 {
-	DisplayNumber(TowerCDValue, GetBuildingTower().CurrentConstructionTowersCD);
-	DisplayNumber(TowerCDNumber, GetBuildingTower().TowersConstructionNumber);
+	UpdateSlotInfo(GetBuildingTower().TowersConstructionNumber, GetBuildingTower().CurrentConstructionTowersCD);
 	DisplayNumber(TowersPBNumber, GetBuildingTower().TowersPerpareBuildingNumber);
 }
 
@@ -237,29 +200,11 @@ UWidget* UUI_InventorySlot::GetTowerTip()
 
 void UUI_InventorySlot::UpdateUI()
 {
-	if (GetBuildingTower().ICO)
-	{
-		TowerIcon->SetBrushFromSoftTexture(GetBuildingTower().ICO);
-		TowerIcon->SetVisibility(ESlateVisibility::HitTestInvisible);
-	}
-	else
-	{
-		TowerIcon->SetVisibility(ESlateVisibility::Hidden);
-	}
-
-	if (GetBuildingTower().CurrentConstructionTowersCD > 0)
-	{
-		TowerCD->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	}
-
-	if (GetBuildingTower().TowersConstructionNumber > 0)
-	{
-		TowerCDNumber->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	}
+	UpdateSlotUI(GetBuildingTower().ICO, GetBuildingTower().TowersConstructionNumber);
 
 	if (GetBuildingTower().TowersPerpareBuildingNumber > 0)
 	{
-		TowersPBNumber->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		TowersPBNumber->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 }
 
@@ -270,11 +215,8 @@ FBuildingTower& UUI_InventorySlot::GetBuildingTower()
 
 void UUI_InventorySlot::ClearSlot()
 {
-	TowerIcon->SetVisibility(ESlateVisibility::Hidden);
-	TowerCD->SetVisibility(ESlateVisibility::Hidden);
+	Super::ClearSlot();
 	TowersPBNumber->SetVisibility(ESlateVisibility::Hidden);
-	TowerCDValue->SetVisibility(ESlateVisibility::Hidden);
-	TowerCDNumber->SetVisibility(ESlateVisibility::Hidden);
 }
 
 

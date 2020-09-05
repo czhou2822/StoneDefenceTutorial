@@ -28,9 +28,30 @@ protected:
 	UPROPERTY()
 	UPlayerSaveData* SaveData;
 
+public:
+
+	//Íæ¼Ò¼¼ÄÜ
+	UPROPERTY()
+	UDataTable* PlayerSkillDataTable;
+
+	TArray<FPlayerSkillData*> CachePlaterSkillData;
 
 public:
 	ATowerDefencePlayerState();
+
+	virtual void BeginPlay() override;
+
+	const TArray<FPlayerSkillData*>& GetPlayerSkillDataFormTable();
+
+	const FPlayerSkillData* GetPlayerSkillDataFormTable(const int32& PlayerSkillID);
+
+	FPlayerSkillData* GetPlayerSkillData(const FGuid& PlayerSkillGUID);
+
+	bool IsVerificationSkill(const FGuid& SlotID);
+
+	void UsePlayerSkill(const FGuid& SlotID);
+
+	void AddPlayerSkill(const FGuid* Guid, int32 SkillID);
 
 	FBuildingTower& GetBuildingTower(const FGuid& ID);
 
@@ -45,6 +66,10 @@ public:
 	FBuildingTower& GetBuildingTowerNULL();
 
 	UPlayerSaveData* GetSaveData();
+
+	FPlayerSkillData* GetSkillData(const FGuid& SkillGuid);
+
+	const TArray<const FGuid*> GetSkillDataID();
 
 	UFUNCTION(/*Server*/)
 	void TowersPerpareBuildingNumber(const FGuid& InventoryGUID);

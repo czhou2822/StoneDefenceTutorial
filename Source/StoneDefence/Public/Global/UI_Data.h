@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-
+extern int32 PlayerSkillNumber;
 
 extern FGuid TowerICOGUID;
 

@@ -10,6 +10,7 @@
 #include "UI/Core/UI_Data.h"
 #include "Components/Image.h"
 #include "UI/GameUI/UMG/UI_RucksackSystem.h"
+#include "UI/GameUI/UMG/UI_PlayerSkillSystem.h"
 
 
 void UUI_MainScreen::NativeConstruct()
@@ -77,5 +78,13 @@ void UUI_MainScreen::UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bI
 	if (RucksackSystem)
 	{
 		RucksackSystem->UpdateInventorySlot(InventorySlotGUID, bInCD);
+	}
+}
+
+void UUI_MainScreen::UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bInCD)
+{
+	if (PlayerSkillSystem)
+	{
+		PlayerSkillSystem->UpdatePlayerSkillSlot(PlayerSkillSlotGUID, bInCD);
 	}
 }

@@ -7,14 +7,17 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
+
 void UUI_Slot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedWidget);
 
+
 	CDMaterialDynamic = SlotCD->GetDynamicMaterial();
 }
+	
 
 void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
@@ -29,7 +32,7 @@ void UUI_Slot::ClearSlot()
 	SlotNumber->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UUI_Slot::UpdateSloInfo(int32 ConstructionNumber, float InSlotCD)
+void UUI_Slot::UpdateSlotInfo(int32 ConstructionNumber, float InSlotCD)
 {
 	DisplayNumber(SlotCDValue, InSlotCD);
 	DisplayNumber(SlotNumber, ConstructionNumber);
