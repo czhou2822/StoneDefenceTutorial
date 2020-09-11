@@ -4,6 +4,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Global/RuleOfTheGlobal.h"
+#include "Global/Blueprint/GlobalConfiguration.h"
+
 
 // Sets default values
 ATowerDefenceGameCamera::ATowerDefenceGameCamera()
@@ -46,9 +49,12 @@ void ATowerDefenceGameCamera::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 void ATowerDefenceGameCamera::Zoom(bool bDirection, const float& ZoomSpeed)
 {
+	float MiniTargetArmLength = GLOBAL_MANAGEMENT_MACRO()->GetGlobalConfiguration()->MiniTargetArmLength;
+	float MaxTargetArmLength = GLOBAL_MANAGEMENT_MACRO()->GetGlobalConfiguration()->MaxTargetArmLength;
+
 	if (bDirection)
 	{
-		if (CameraBoom->TargetArmLength > 400)
+		if (CameraBoom->TargetArmLength > MiniTargetArmLength)
 		{
 			CameraBoom->TargetArmLength -= ZoomSpeed * 2;
 		}
@@ -60,5 +66,10 @@ void ATowerDefenceGameCamera::Zoom(bool bDirection, const float& ZoomSpeed)
 			CameraBoom->TargetArmLength += ZoomSpeed * 2;
 		}
 	}
+}
+
+float ATowerDefenceGameCamera::GetTargetArmLength() const
+{
+	return CameraBoom->TargetArmLength;
 }
 

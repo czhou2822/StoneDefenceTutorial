@@ -1,4 +1,4 @@
-#include "StoneDefenceUtils.h"
+﻿#include "StoneDefenceUtils.h"
 #include "Interface/Character/RuleCharacter.h"
 #include "engine/StaticMesh.h"
 #include "RawMesh/Public/RawMesh.h"
@@ -17,6 +17,12 @@
 #include "Components/ArrowComponent.h"
 #include "Bullet/RuleOfTheBullet.h"
 #include "Bullet/PlayerSkillSlotActor.h"
+#include "ImageUtils.h"
+#include "IImageWrapper.h"
+#include "IImageWrapperModule.h"
+#include "Misc/FileHelper.h"
+#include "Engine/SceneCapture2D.h"
+#include "Landscape.h"
 #include "StoneDefence/Public/Core/GameCore/TowerDefencePlayerController.h"
 
 #if PLATFORM_WINDOWS
@@ -458,12 +464,72 @@ UStaticMesh * MeshUtils::SkeletalMeshComponentToStaticMesh(USkeletalMeshComponen
 }
 
 
+void RenderingUtils::FScreenShot::OnScreenshotCapturedInternal(
+	int32 SrcWidth,
+	int32 SrcHeight,
+	const TArray<FColor>& OrigBitmap)
+{
+	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+	check(OrigBitmap.Num() == SrcWidth * SrcHeight);
 
+	// µ÷ÕûÍ¼Ïñ´óÐ¡ÒÔÇ¿ÖÆ×î´ó´óÐ¡¡£ 
+	TArray<FColor> ScaledBitmap;
+	FImageUtils::ImageResize(SrcWidth, SrcHeight, OrigBitmap, ScaledWidth, ScaledHeight, ScaledBitmap, true);
 
+	TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
+	ImageWrapper->SetRaw(ScaledBitmap.GetData(), ScaledBitmap.GetAllocatedSize(), ScaledWidth, ScaledHeight, ERGBFormat::BGRA, 8);
 
+	//jpg×ÊÔ´°üÍ·
+	const TArray<uint8>& JPEGData = ImageWrapper->GetCompressed(ImageQuality);
+	FFileHelper::SaveArrayToFile(JPEGData, *Filename);
+
+	//Ñ¹Ëõ
+	FCreateTexture2DParameters Params;
+	Params.bDeferCompression = true;
+	Texture = FImageUtils::CreateTexture2D(ScaledWidth, ScaledHeight, ScaledBitmap, Outer, FGuid::NewGuid().ToString(), RF_NoFlags, Params);
+
+	UGameViewportClient::OnScreenshotCaptured().Remove(ScreenShotDelegateHandle);
+	ImageWrapper.Reset();
+
+	//½áÊø×Ô¼º
+	delete this;
+}
+
+ASceneCapture2D* RenderingUtils::SpawnSceneCapture2D(UWorld* World, UClass* SceneCaptureClass, FMapSize& MapSize, float Life)
+{
+	if (SceneCaptureClass)
+	{
+		for (TActorIterator<ALandscape> It(World, ALandscape::StaticClass()); It; ++It)
+		{
+			if (ALandscape* BigMap = *It)
+			{
+				//都是正方形
+				FVector BigMapSize = BigMap->GetActorScale3D();
+				MapSize.BigMapRealSize = FVector2D(BigMapSize.X * 7, BigMapSize.Y * 7);
+
+				FVector CenterPoint = FVector(MapSize.BigMapRealSize.X / 2);
+
+				if (ASceneCapture2D* NewCarma = World->SpawnActor<ASceneCapture2D>(SceneCaptureClass, CenterPoint, FRotator(-90.f, 0.f, 0.f)))
+				{
+					if (Life != 0.f)
+					{
+						NewCarma->SetLifeSpan(Life);
+					}
+
+					return NewCarma;
+				}
+
+				break;
+			}
+		}
+	}
+
+	return nullptr;
+}
 
 
 
 #if PLATFORM_WINDOWS
 #pragma optimize("", on)
 #endif
+

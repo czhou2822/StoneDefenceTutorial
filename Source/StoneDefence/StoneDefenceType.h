@@ -5,6 +5,13 @@
 #include "CoreMinimal.h"
 #include "StoneDefenceType.generated.h"
 
+UENUM(BlueprintType)
+enum class EMiniMapType : uint8
+{
+	REAL_MAP,     
+	GRAPHICAL_MAP,   
+};
+
 
 UENUM(BlueprintType)
 enum class ESubmissionSkillRequestType : uint8
@@ -104,3 +111,7 @@ enum class ECharacterType : uint8
 	
 };
 
+struct FMapSize
+{
+	FVector2D BigMapRealSize;
+};

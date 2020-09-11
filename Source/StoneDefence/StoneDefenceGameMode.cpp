@@ -13,6 +13,8 @@
 #include "StoneDefenceUtils.h"
 #include "Items/SpawnPoint.h"
 #include "UI/GameUI/Core/RuleofTheHUD.h"
+#include "Global/RuleOfTheGlobal.h"
+#include "Global/Blueprint/GlobalResource.h"
 
 
 AStoneDefenceGameMode::AStoneDefenceGameMode()
@@ -33,6 +35,7 @@ AStoneDefenceGameMode::AStoneDefenceGameMode()
 void AStoneDefenceGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
 	if (ATowerDefenceGameState* InGameState = GetGameState<ATowerDefenceGameState>())
 	{
 		InGameState->GetGameData().AssignedMonsterAmount();

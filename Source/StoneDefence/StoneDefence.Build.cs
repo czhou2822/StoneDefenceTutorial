@@ -27,7 +27,9 @@ public class StoneDefence : ModuleRules
 			"Slate", 
 			"SlateCore",
 			"SimpleDrawText",
-			"RawMesh"
+			"RawMesh",
+			"ImageWrapper",
+			"Landscape",
 
 		});
 

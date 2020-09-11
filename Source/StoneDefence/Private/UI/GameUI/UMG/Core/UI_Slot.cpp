@@ -98,7 +98,7 @@ void UUI_Slot::DisplayNumber(UTextBlock* TextNumberBlock, float TextNumber)
 
 void UUI_Slot::DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber)
 {
-	if (TextNumber < 1)
+	if (TextNumber <= 1)
 	{
 		TextNumberBlock->SetVisibility(ESlateVisibility::Hidden);
 	}

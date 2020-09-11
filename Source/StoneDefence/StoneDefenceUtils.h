@@ -6,13 +6,17 @@
 #include "Bullet/RuleOfTheBullet.h"
 #include "EngineUtils.h"
 
+class USizeBox;
 class ARuleOfTheCharacter;
 class IRuleCharacter;
+class UStaticMesh;
+class AStaticMeshActor;
 class USkeletalMeshComponent;
 class UWorld;
-class AStaticMeshActor;
-class ATowerDefencePlayerController;
+class ARuleOfTheBullet;
 class APlayerSkillSlotActor;
+class ATowerDefencePlayerController;
+class ASceneCapture2D;
 
 namespace StoneDefenceUtils
 {
@@ -93,3 +97,35 @@ namespace MeshUtils
 
 
 }
+
+
+namespace RenderingUtils
+{
+	struct FScreenShot
+	{
+		FScreenShot(
+			int32 InWidth,
+			int32 InHeight,
+			UTexture2D*& InTexture,
+			UObject* InOuter,
+			int32 InImageQuality = 80,
+			bool bInShowUI = false,
+			bool bAddFilenameSuffix = true);
+
+		FString& GetFilename() { return Filename; }
+	protected:
+		void OnScreenshotCapturedInternal(int32 SrcWidth, int32 SrcHeight, const TArray<FColor>& OrigBitmap);
+	private:
+		UTexture2D*& Texture;
+		FDelegateHandle ScreenShotDelegateHandle;
+		int32 ScaledWidth;
+		int32 ScaledHeight;
+		int32 ImageQuality;
+		UObject* Outer;
+		FString Filename;
+	};
+
+	ASceneCapture2D* SpawnSceneCapture2D(UWorld* World, UClass* SceneCaptureClass, FMapSize& MapSize, float Life = 0.f);
+}
+
+

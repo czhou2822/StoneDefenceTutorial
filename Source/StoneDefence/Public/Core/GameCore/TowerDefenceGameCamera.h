@@ -37,4 +37,5 @@ public:
 
 	void Zoom(bool bDirection, const float& ZoomSpeed);
 
+	float GetTargetArmLength() const;
 };
