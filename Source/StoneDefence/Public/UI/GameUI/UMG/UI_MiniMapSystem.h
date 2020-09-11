@@ -44,6 +44,7 @@ public:
 
 	bool IsExistence(const FGuid& ID);
 
+	void ResetLocation(UCanvasPanelSlot* PanelSlot, const FVector2D& MinMapPos, const FVector2D& LocalSize2D);
 protected:
 	TMap<FGuid, TWeakObjectPtr<UCanvasPanelSlot>> CharacterIcons;
 
